@@ -6,10 +6,10 @@ export default function TitleCard({ episode, title, jp }) {
   const [ref, inView] = useInView(0.3);
 
   return (
-    <div ref={ref} className="animate-flicker border-y border-magi/30 bg-black px-4 py-16">
+    <div ref={ref} className="animate-flicker border-y border-magi/30 bg-black px-4 py-8 sm:py-16">
       <div className="mx-auto max-w-6xl">
         <p
-          className={`font-title text-xl font-bold text-paper transition-opacity duration-500 ${
+          className={`font-title text-base font-bold text-paper transition-opacity sm:text-xl duration-500 ${
             inView ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -24,7 +24,7 @@ export default function TitleCard({ episode, title, jp }) {
         </h2>
         {jp && (
           <p
-            className={`mt-4 font-title text-paper/60 transition-[opacity,translate] delay-500 duration-500 ${
+            className={`mt-2 font-title text-sm text-paper/60 sm:mt-4 sm:text-base transition-[opacity,translate] delay-500 duration-500 ${
               inView ? "opacity-100" : "translate-y-2 opacity-0"
             }`}
           >

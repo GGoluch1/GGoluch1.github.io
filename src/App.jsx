@@ -6,6 +6,7 @@ import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import Links from "./components/Links";
 import Nav from "./components/Nav";
+import { SECTIONS, goTo } from "./lib/navigate";
 import { sfx } from "./lib/sound";
 
 const SESSION_KEY = "magi-booted"; // booted in this tab already
@@ -39,7 +40,18 @@ export default function App() {
     setBooted(true);
   }, []);
 
-  // Soft interface sounds for every link and button, via one delegated listener.
+  // Deep links (gabrielgoluch.me/#comms): jump to the section once the page is
+  // usable. The browser's own jump gets lost while the boot screen locks scrolling.
+  useEffect(() => {
+    if (!booted) return;
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (!id) return;
+    const frame = requestAnimationFrame(() => goTo(id, { instant: true }));
+    return () => cancelAnimationFrame(frame);
+  }, [booted]);
+
+  // One delegated listener for: soft UI sounds on links/buttons, and smooth
+  // in-page navigation for every "#section" link (no back-button history spam).
   useEffect(() => {
     const selector = "a, button";
     const onOver = (e) => {
@@ -48,6 +60,11 @@ export default function App() {
     };
     const onClick = (e) => {
       if (e.target.closest?.(selector)) sfx.click();
+
+      const link = e.target.closest?.('a[href^="#"]');
+      if (!link || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      const id = link.getAttribute("href").slice(1);
+      if (id && goTo(id)) e.preventDefault();
     };
     document.addEventListener("pointerover", onOver);
     document.addEventListener("click", onClick);
@@ -57,11 +74,33 @@ export default function App() {
     };
   }, []);
 
+  // Keyboard shortcuts: 1 / 2 / 3 jump to MAGI / FILES / COMMS.
+  useEffect(() => {
+    if (!booted) return;
+    const onKey = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
+      const index = ["1", "2", "3"].indexOf(e.key);
+      if (index < 0) return;
+      e.preventDefault();
+      sfx.click();
+      goTo(SECTIONS[index]);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [booted]);
+
   return (
     <>
+      <a
+        href="#main"
+        className="sr-only z-[80] bg-magi px-4 py-2 font-bold text-void focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        SKIP TO CONTENT
+      </a>
       {!booted && <BootScreen fast={mode === "fast"} onDone={finishBoot} />}
       <Nav />
-      <main>
+      <main id="main" tabIndex={-1} className="outline-none">
         <Hero active={booted} />
         <AlertBar text="⚠ 緊急事態 // EMERGENCY // PATTERN BLUE // NEW CASE FILES DETECTED" />
         <CaseFiles />

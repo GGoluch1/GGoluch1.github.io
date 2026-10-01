@@ -28,7 +28,7 @@ export default function Links() {
   const channels = socials.length + (site.resume ? 1 : 0);
 
   return (
-    <section id="comms" className="scroll-mt-14">
+    <section id="comms" tabIndex={-1} className="scroll-mt-14 outline-none">
       <TitleCard episode="03" title="COMMUNICATION CHANNELS" jp="通信回線 // ALL CHANNELS OPEN" />
       <div className="mx-auto max-w-4xl px-4 py-16">
         <Reveal>

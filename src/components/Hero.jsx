@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { profile } from "../data/profile";
+import { socials } from "../data/socials";
 import { sfx } from "../lib/sound";
 import MagiPanel from "./MagiPanel";
 
@@ -58,8 +59,8 @@ export default function Hero({ active }) {
   const done = votes === VOTE_ORDER.length;
 
   return (
-    <section id="magi" className="hex-grid scroll-mt-16 border-b-2 border-magi/40">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:py-24">
+    <section id="magi" tabIndex={-1} className="hex-grid scroll-mt-16 outline-none border-b-2 border-magi/40">
+      <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-10 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:py-24">
         {/* Left: personnel file */}
         <div>
           <p {...enter(active, 0)}>
@@ -98,6 +99,25 @@ export default function Hero({ active }) {
               </a>
             </div>
           </div>
+
+          {/* Quick links to socials, so phones don't have to scroll to the comms section */}
+          <div {...enter(active, 850)}>
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-xs">
+              <span className="w-full tracking-[0.3em] text-magi/80 sm:mr-1 sm:w-auto">QUICK COMMS //</span>
+              {socials.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-goatcounter-click={`hero-${s.name.toLowerCase()}`}
+                  className="wipe-fill flex min-h-11 items-center border border-magi/60 px-3 tracking-widest transition-colors duration-300 hover:text-void focus-visible:text-void"
+                >
+                  {s.name}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Right: MAGI deliberation */}
@@ -108,16 +128,18 @@ export default function Hero({ active }) {
             <span>PRIORITY:AAA</span>
           </div>
 
+          {/* Phones: a swipeable row of panels. Larger screens: the classic MAGI triangle. */}
+          <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-0 sm:overflow-visible sm:p-0">
           <MagiPanel
             name="BALTHASAR"
             number={2}
             data={profile.magi.balthasar}
             approved={approved("balthasar")}
-            className="sm:mx-auto sm:w-[calc(50%-0.75rem)]"
+            className="w-[80%] shrink-0 snap-start sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.75rem)]"
           />
 
           {/* Connector: Balthasar ─ MAGI ─ Casper/Melchior */}
-          <div className="hidden sm:block" aria-hidden="true">
+          <div className="hidden sm:col-span-2 sm:block" aria-hidden="true">
             <div className="mx-auto h-5 w-0.5 bg-magi/60" />
             <div
               className={`mx-auto w-fit border-2 px-3 font-title text-lg font-black tracking-[0.4em] glow transition-colors duration-500 ${
@@ -129,10 +151,24 @@ export default function Hero({ active }) {
             <div className="mx-auto h-5 w-[calc(50%+0.75rem)] border-x-2 border-t-2 border-magi/60" />
           </div>
 
-          <div className="mt-6 grid gap-6 sm:mt-0 sm:grid-cols-2">
-            <MagiPanel name="CASPER" number={3} data={profile.magi.casper} approved={approved("casper")} />
-            <MagiPanel name="MELCHIOR" number={1} data={profile.magi.melchior} approved={approved("melchior")} />
+          <MagiPanel
+            name="CASPER"
+            number={3}
+            data={profile.magi.casper}
+            approved={approved("casper")}
+            className="w-[80%] shrink-0 snap-start sm:w-auto"
+          />
+          <MagiPanel
+            name="MELCHIOR"
+            number={1}
+            data={profile.magi.melchior}
+            approved={approved("melchior")}
+            className="w-[80%] shrink-0 snap-start sm:w-auto"
+          />
           </div>
+          <p className="mt-2 text-center text-[10px] tracking-[0.3em] text-magi/80 sm:hidden" aria-hidden="true">
+            ◂ SWIPE ▸
+          </p>
 
           <div
             className={`mt-6 flex border-2 text-sm transition-colors duration-500 ${done ? "border-sync" : "border-magi"}`}

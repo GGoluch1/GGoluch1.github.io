@@ -10,12 +10,15 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12 text-center">
         <Reveal variant="wipe">
           <p className="mx-auto w-fit font-title text-2xl font-black text-paper transition hover:animate-glitch md:text-3xl">
-            GOD&apos;S IN HIS HEAVEN.
+            GABE&apos;S IN HIS HEAVEN.
             <br />
             ALL&apos;S RIGHT WITH THE WORLD.
           </p>
         </Reveal>
         <Reveal variant="fade" delay={300}>
+          <p className="mt-6 hidden text-xs tracking-widest text-magi/80 md:block" aria-hidden="true">
+            KEYS // [1] MAGI · [2] FILES · [3] COMMS
+          </p>
           <p className="mt-6 text-xs text-magi/80">
             © {YEAR} {profile.firstName} {profile.lastName} // NERV HQ, TOKYO-3
           </p>
