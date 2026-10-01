@@ -8,26 +8,31 @@ import Links from "./components/Links";
 import Nav from "./components/Nav";
 import { sfx } from "./lib/sound";
 
-const BOOT_KEY = "magi-booted";
+const SESSION_KEY = "magi-booted"; // booted in this tab already
+const VISITED_KEY = "magi-visited"; // has ever seen the full boot
 
-// The boot sequence plays once per browser tab session.
-// Add ?boot to the URL to force it, e.g. localhost:5173/?boot
-function skipBoot() {
-  if (new URLSearchParams(window.location.search).has("boot")) return false;
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return true;
+// "full" for first-time visitors, "fast" for returning ones,
+// "none" when it already played in this tab. Add ?boot to the URL to force "full".
+// Visitors who prefer reduced motion still get the boot, just without movement.
+function bootMode() {
+  if (new URLSearchParams(window.location.search).has("boot")) return "full";
   try {
-    return sessionStorage.getItem(BOOT_KEY) === "1";
+    if (sessionStorage.getItem(SESSION_KEY) === "1") return "none";
+    if (localStorage.getItem(VISITED_KEY) === "1") return "fast";
   } catch {
-    return false;
+    // storage blocked: fall through to the full boot
   }
+  return "full";
 }
 
 export default function App() {
-  const [booted, setBooted] = useState(skipBoot);
+  const [mode] = useState(bootMode);
+  const [booted, setBooted] = useState(mode === "none");
 
   const finishBoot = useCallback(() => {
     try {
-      sessionStorage.setItem(BOOT_KEY, "1");
+      sessionStorage.setItem(SESSION_KEY, "1");
+      localStorage.setItem(VISITED_KEY, "1");
     } catch {
       // storage blocked: boot will just replay next load
     }
@@ -54,7 +59,7 @@ export default function App() {
 
   return (
     <>
-      {!booted && <BootScreen onDone={finishBoot} />}
+      {!booted && <BootScreen fast={mode === "fast"} onDone={finishBoot} />}
       <Nav />
       <main>
         <Hero active={booted} />

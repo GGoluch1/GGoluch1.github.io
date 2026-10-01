@@ -63,7 +63,7 @@ export default function Hero({ active }) {
         {/* Left: personnel file */}
         <div>
           <p {...enter(active, 0)}>
-            <span className="text-xs tracking-[0.3em] text-magi/70">特務機関ネルフ // PERSONNEL FILE</span>
+            <span className="text-xs tracking-[0.3em] text-magi/80">特務機関ネルフ // PERSONNEL FILE</span>
           </p>
           <h1
             aria-label={`${profile.firstName} ${profile.lastName}`}
@@ -102,7 +102,7 @@ export default function Hero({ active }) {
 
         {/* Right: MAGI deliberation */}
         <div {...enter(active, 300)}>
-          <div className="mb-4 flex justify-between text-[11px] tracking-widest text-magi/70">
+          <div className="mb-4 flex justify-between text-[11px] tracking-widest text-magi/80">
             <span>提訴 // CODE:473</span>
             <span>EXTENSION:3023</span>
             <span>PRIORITY:AAA</span>
@@ -154,7 +154,7 @@ export default function Hero({ active }) {
               <button
                 type="button"
                 onClick={rerun}
-                className="group/re flex items-center gap-1 text-xs text-magi/60 transition-colors hover:text-magi"
+                className="group/re flex items-center gap-1 text-xs text-magi/80 transition-colors hover:text-magi"
               >
                 <span className="inline-block transition-transform duration-500 group-hover/re:-rotate-180">↻</span>
                 RE-RUN

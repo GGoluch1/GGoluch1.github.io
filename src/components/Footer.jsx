@@ -16,10 +16,10 @@ export default function Footer() {
           </p>
         </Reveal>
         <Reveal variant="fade" delay={300}>
-          <p className="mt-6 text-xs text-magi/60">
+          <p className="mt-6 text-xs text-magi/80">
             © {YEAR} {profile.firstName} {profile.lastName} // NERV HQ, TOKYO-3
           </p>
-          <p className="mt-2 text-[10px] text-magi/40">
+          <p className="mt-2 text-[10px] text-magi/80">
             Fan-made tribute. Neon Genesis Evangelion belongs to its respective owners.
           </p>
         </Reveal>

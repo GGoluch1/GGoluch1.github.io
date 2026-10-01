@@ -1,0 +1,115 @@
+<!doctype html>
+<!--
+  Source for public/og-image.png (the link preview image).
+  Regenerate with the headless Chrome command in README.md.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&family=Share+Tech+Mono&display=block"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --void: #050407;
+        --panel: #0c0a0e;
+        --magi: #ff8a1f;
+        --nerv: #ee1c33;
+        --sync: #8cff3a;
+        --paper: #f4efe6;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+      body {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--void);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ff8a1f' stroke-opacity='0.12' stroke-width='1'/%3E%3C/svg%3E");
+        color: var(--magi);
+        font-family: "Share Tech Mono", monospace;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 18px 48px;
+        border-bottom: 3px solid var(--magi);
+        font-size: 20px;
+        letter-spacing: 0.3em;
+      }
+      .nerv { font-family: "Noto Serif JP", serif; font-weight: 900; font-size: 34px; letter-spacing: 0; color: var(--nerv); }
+      .hazard { height: 10px; background: repeating-linear-gradient(-45deg, var(--magi) 0 16px, var(--void) 16px 32px); }
+      .main { flex: 1; display: flex; align-items: center; gap: 48px; padding: 0 48px; }
+      .left { flex: 1.15; }
+      .label { font-size: 20px; letter-spacing: 0.3em; opacity: 0.8; }
+      h1 {
+        margin-top: 14px;
+        font-family: "Noto Serif JP", serif;
+        font-weight: 900;
+        font-size: 112px;
+        line-height: 0.86;
+        letter-spacing: -0.02em;
+        color: var(--paper);
+      }
+      h1 span { color: var(--magi); }
+      .tag { display: inline-block; margin-top: 26px; padding: 4px 10px; background: var(--nerv); color: var(--void); font-size: 22px; letter-spacing: 0.15em; }
+      .right { flex: 1; }
+      .panel { padding: 3px; background: var(--sync); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+      .panel > div {
+        height: 100%; display: flex; flex-direction: column; gap: 4px;
+        padding: 14px 18px; background: #0b1a06; color: var(--sync); white-space: nowrap;
+        clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+        font-family: "Noto Serif JP", serif; font-weight: 900; font-size: 24px;
+      }
+      .top-panel { width: calc(50% - 12px); margin: 0 auto; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+      .stem { width: 3px; height: 18px; margin: 0 auto; background: var(--sync); opacity: 0.7; }
+      .magi { width: fit-content; margin: 0 auto; padding: 0 14px; border: 3px solid var(--sync); color: var(--sync); font-family: "Noto Serif JP", serif; font-weight: 900; font-size: 24px; letter-spacing: 0.4em; text-shadow: 0 0 10px currentColor; }
+      .branch { width: calc(50% + 12px); height: 18px; margin: 0 auto; border: 3px solid var(--sync); border-bottom: 0; opacity: 0.7; }
+      .result { display: flex; margin-top: 24px; border: 3px solid var(--sync); font-size: 22px; }
+      .result b { padding: 8px 14px; background: var(--sync); color: var(--void); font-family: "Noto Serif JP", serif; font-weight: 900; }
+      .result span { padding: 8px 14px; color: var(--sync); text-shadow: 0 0 10px currentColor; }
+      .bottom { display: flex; justify-content: space-between; padding: 14px 48px; border-top: 3px solid var(--magi); font-size: 20px; letter-spacing: 0.2em; }
+      .crt {
+        position: absolute; inset: 0;
+        background:
+          repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.18) 2px 3px),
+          radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.5) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top">
+      <span class="nerv">NERV</span>
+      <span>MAGI SYSTEM // PERSONNEL FILE</span>
+    </div>
+    <div class="hazard"></div>
+
+    <div class="main">
+      <div class="left">
+        <p class="label">特務機関ネルフ</p>
+        <h1>GABRIEL<br /><span>GOLUCH</span></h1>
+        <p class="tag">DEVELOPER // BUILDER</p>
+      </div>
+      <div class="right">
+        <div class="panel top-panel"><div><span>BALTHASAR·2</span><span>承認</span></div></div>
+        <div class="stem"></div>
+        <div class="magi">MAGI</div>
+        <div class="branch"></div>
+        <div class="row">
+          <div class="panel"><div><span>CASPER·3</span><span>承認</span></div></div>
+          <div class="panel"><div><span>MELCHIOR·1</span><span>承認</span></div></div>
+        </div>
+        <div class="result"><b>決議</b><span>承認 // ACCESS GRANTED</span></div>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <span>GABRIELGOLUCH.ME</span>
+      <span>CASE FILES // COMMS</span>
+    </div>
+    <div class="crt"></div>
+  </body>
+</html>

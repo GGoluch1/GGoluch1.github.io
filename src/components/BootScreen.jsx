@@ -22,7 +22,11 @@ const CORES = [
   { name: "MELCHIOR·1", at: 4, pos: "" },
 ];
 
-const LINE_MS = 230;
+// Timings in ms. Returning visitors get the fast version (about a second).
+const TIMING = {
+  full: { line: 230, settle: 300, hold: 900 },
+  fast: { line: 55, settle: 100, hold: 350 },
+};
 
 // Random hex dump, generated once when the module loads.
 const HEX = Array.from({ length: 24 }, (_, i) => {
@@ -57,16 +61,17 @@ function Frame({ label, jp, children, className = "" }) {
     <div className={`border border-magi/60 bg-panel/80 ${className}`}>
       <div className="flex justify-between border-b border-magi/40 px-2 py-0.5 text-[10px] tracking-widest">
         <span>{label}</span>
-        <span className="text-magi/60">{jp}</span>
+        <span className="text-magi/80">{jp}</span>
       </div>
       {children}
     </div>
   );
 }
 
-export default function BootScreen({ onDone }) {
+export default function BootScreen({ fast = false, onDone }) {
   const [shown, setShown] = useState(0);
   const [phase, setPhase] = useState("log"); // log -> ready -> exit
+  const timing = fast ? TIMING.fast : TIMING.full;
 
   // Print log lines one at a time.
   useEffect(() => {
@@ -75,27 +80,27 @@ export default function BootScreen({ onDone }) {
       const t = setTimeout(() => {
         setPhase("ready");
         sfx.boot();
-      }, 300);
+      }, timing.settle);
       return () => clearTimeout(t);
     }
     const t = setTimeout(() => {
       setShown((s) => s + 1);
-      sfx.tick();
-    }, LINE_MS);
+      if (!fast) sfx.tick();
+    }, timing.line);
     return () => clearTimeout(t);
-  }, [shown, phase]);
+  }, [shown, phase, fast, timing]);
 
   // Hold on "online", then play the CRT switch-off and hand over to the site.
   useEffect(() => {
     if (phase === "ready") {
-      const t = setTimeout(() => setPhase("exit"), 900);
+      const t = setTimeout(() => setPhase("exit"), timing.hold);
       return () => clearTimeout(t);
     }
     if (phase === "exit") {
       const t = setTimeout(onDone, 550);
       return () => clearTimeout(t);
     }
-  }, [phase, onDone]);
+  }, [phase, onDone, timing]);
 
   const skip = useCallback(() => setPhase("exit"), []);
 
@@ -124,7 +129,7 @@ export default function BootScreen({ onDone }) {
       <div className="flex items-center justify-between border-b-2 border-magi px-4 py-2 text-xs tracking-[0.3em]">
         <span className="font-title font-black text-nerv">NERV</span>
         <span>MAGI SYSTEM // BOOT</span>
-        <span className="hidden text-magi/60 sm:inline">人格移植OS</span>
+        <span className="hidden text-magi/80 sm:inline">人格移植OS</span>
       </div>
       <div className="hazard h-1.5" aria-hidden="true" />
 
@@ -169,7 +174,7 @@ export default function BootScreen({ onDone }) {
                   >
                     <div
                       className={`clip-panel px-2 py-2 text-center text-xs transition-colors duration-300 ${
-                        on ? "bg-[#0b1a06] text-sync" : "bg-panel text-magi/60"
+                        on ? "bg-[#0b1a06] text-sync" : "bg-panel text-magi/80"
                       }`}
                     >
                       <div className="font-title font-black">{core.name}</div>
@@ -204,7 +209,7 @@ export default function BootScreen({ onDone }) {
           <div className="grid flex-1 grid-cols-[1.4fr_1fr] gap-4">
             <Frame label="MEMORY" jp="記憶領域" className="relative overflow-hidden">
               <div className="absolute inset-x-0 top-6 bottom-0 overflow-hidden px-2">
-                <div className="animate-scroll-up text-[10px] leading-snug text-magi/60">
+                <div className="animate-scroll-up text-[10px] leading-snug text-magi/80">
                   {[...HEX, ...HEX].map((row, i) => (
                     <div key={i}>{row}</div>
                   ))}
@@ -228,7 +233,17 @@ export default function BootScreen({ onDone }) {
 
       <div className="flex min-h-24 flex-col items-center justify-center gap-1 border-t-2 border-magi px-4 py-3">
         {phase === "log" ? (
-          <span className="text-xs tracking-[0.3em] text-magi/60">CLICK OR PRESS ANY KEY TO SKIP</span>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={skip}
+              autoFocus
+              className="wipe-fill group border-2 border-magi px-4 py-1.5 text-sm tracking-[0.3em] transition-colors hover:text-void focus-visible:text-void"
+            >
+              SKIP <span className="inline-block transition-transform group-hover:translate-x-1">▸▸</span>
+            </button>
+            <span className="hidden text-xs tracking-[0.3em] text-magi/80 sm:inline">OR PRESS ANY KEY</span>
+          </div>
         ) : (
           <div className="animate-stamp text-center">
             <div className="font-title text-4xl font-black text-sync glow">起動</div>

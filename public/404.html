@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- No scripts at all on this page; inline styles allowed for the <style> block below. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#050407" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>404 // FILE NOT FOUND</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Share+Tech+Mono&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --void: #050407;
+        --panel: #0c0a0e;
+        --magi: #ff8a1f;
+        --nerv: #ee1c33;
+        --paper: #f4efe6;
+        --cyan: #43d6ff;
+      }
+      * { box-sizing: border-box; margin: 0; }
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: var(--void);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ff8a1f' stroke-opacity='0.09' stroke-width='1'/%3E%3C/svg%3E");
+        color: var(--magi);
+        font-family: "Share Tech Mono", ui-monospace, monospace;
+      }
+      .hazard {
+        height: 16px;
+        background: repeating-linear-gradient(-45deg, var(--nerv) 0 16px, var(--void) 16px 32px);
+      }
+      .alert {
+        overflow: hidden;
+        background: var(--nerv);
+        color: var(--void);
+        font-family: "Noto Serif JP", serif;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        white-space: nowrap;
+        padding: 6px 0;
+      }
+      .alert span {
+        display: inline-block;
+        animation: marquee 30s linear infinite;
+      }
+      @keyframes marquee { to { transform: translateX(-50%); } }
+      main {
+        flex: 1;
+        display: grid;
+        place-items: center;
+        padding: 48px 16px;
+      }
+      .card {
+        width: 100%;
+        max-width: 640px;
+        border: 2px solid var(--nerv);
+        background: var(--panel);
+      }
+      .card header {
+        display: flex;
+        justify-content: space-between;
+        background: var(--nerv);
+        color: var(--void);
+        padding: 4px 12px;
+        font-size: 13px;
+        letter-spacing: 0.2em;
+      }
+      .body { padding: 24px; }
+      .label { font-size: 12px; letter-spacing: 0.3em; color: var(--paper); opacity: 0.75; }
+      h1 {
+        margin-top: 8px;
+        font-family: "Noto Serif JP", serif;
+        font-weight: 900;
+        font-size: clamp(56px, 16vw, 112px);
+        line-height: 0.9;
+        color: var(--paper);
+      }
+      h1 em { font-style: normal; color: var(--nerv); }
+      .jp { margin-top: 12px; font-family: "Noto Serif JP", serif; font-weight: 900; color: var(--paper); opacity: 0.75; }
+      ul { list-style: none; padding: 0; margin-top: 24px; font-size: 14px; line-height: 1.8; color: var(--paper); }
+      ul b { color: var(--nerv); font-weight: normal; }
+      a.home {
+        display: inline-block;
+        margin-top: 28px;
+        padding: 10px 20px;
+        background: var(--magi);
+        color: var(--void);
+        font-weight: bold;
+        text-decoration: none;
+        letter-spacing: 0.1em;
+        box-shadow: 4px 4px 0 var(--nerv);
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+      a.home:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--nerv); }
+      a.home:active { transform: translate(4px, 4px); box-shadow: none; }
+      .blink { animation: blink 1s steps(1, end) infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
+      .crt {
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        background:
+          repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.22) 2px 3px),
+          radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.55) 100%);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .alert span, .blink { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hazard" aria-hidden="true"></div>
+    <div class="alert" aria-hidden="true">
+      <span>⚠ 警告 // PATTERN BLUE // FILE NOT FOUND // 警告 // PATTERN BLUE // FILE NOT FOUND // 警告 // PATTERN BLUE // FILE NOT FOUND // 警告 // PATTERN BLUE // FILE NOT FOUND // 警告 // PATTERN BLUE // FILE NOT FOUND // 警告 // PATTERN BLUE // FILE NOT FOUND //&nbsp;</span>
+    </div>
+
+    <main>
+      <div class="card">
+        <header><span>MAGI SYSTEM // QUERY FAILED</span><span>CODE:404</span></header>
+        <div class="body">
+          <p class="label">特務機関ネルフ // CENTRAL DOGMA</p>
+          <h1>ERROR <em>404</em></h1>
+          <p class="jp">該当ファイルなし // NO MATCHING FILE</p>
+          <ul>
+            <li>&gt; MELCHIOR-1 ...... <b>否決</b> FILE NOT FOUND</li>
+            <li>&gt; BALTHASAR-2 ..... <b>否決</b> FILE NOT FOUND</li>
+            <li>&gt; CASPER-3 ........ <b>否決</b> FILE NOT FOUND</li>
+            <li>&gt; RECOMMENDATION: RETURN TO HQ<span class="blink">█</span></li>
+          </ul>
+          <a class="home" href="/">RETURN TO NERV HQ ▸</a>
+        </div>
+      </div>
+    </main>
+
+    <div class="hazard" aria-hidden="true"></div>
+    <div class="crt" aria-hidden="true"></div>
+  </body>
+</html>

@@ -16,7 +16,7 @@ export default function TitleCard({ episode, title, jp }) {
           EPISODE:{episode}
         </p>
         <h2
-          className={`mt-2 w-fit font-title text-5xl leading-[0.9] font-black tracking-tight text-paper transition-[clip-path] delay-150 duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] hover:animate-glitch md:text-7xl ${
+          className={`mt-2 w-fit max-w-full font-title text-[clamp(1.75rem,9vw,4.5rem)] leading-[0.9] font-black tracking-tight wrap-break-word text-paper transition-[clip-path] delay-150 duration-700 ease-[cubic-bezier(0.7,0,0.2,1)] hover:animate-glitch ${
             inView ? "[clip-path:inset(0_0_0_0)]" : "[clip-path:inset(0_100%_0_0)]"
           }`}
         >

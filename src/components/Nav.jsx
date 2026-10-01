@@ -50,17 +50,17 @@ export default function Nav() {
 
   return (
     <header className="sticky top-0 z-40 border-b-2 border-magi bg-void/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:gap-3">
         <a href="#magi" className="group flex items-baseline gap-2">
           <span className="font-title text-2xl font-black tracking-tight text-nerv transition group-hover:animate-glitch">
             NERV
           </span>
-          <span className="hidden text-xs tracking-[0.3em] text-magi/70 transition-colors group-hover:text-magi sm:inline">
+          <span className="hidden text-xs tracking-[0.3em] text-magi/80 transition-colors group-hover:text-magi sm:inline">
             MAGI SYSTEM
           </span>
         </a>
 
-        <nav className="flex gap-1 text-sm">
+        <nav className="flex text-xs sm:gap-1 sm:text-sm">
           {links.map((link, i) => {
             const isActive = active === link.id;
             return (
@@ -68,11 +68,12 @@ export default function Nav() {
                 key={link.id}
                 href={`#${link.id}`}
                 aria-current={isActive ? "true" : undefined}
-                className={`relative px-2 py-1 transition-colors after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:origin-left after:bg-magi after:transition-transform after:duration-300 hover:text-paper hover:after:scale-x-100 ${
+                className={`relative px-1.5 py-1 transition-colors after:absolute after:inset-x-1.5 after:bottom-0 sm:px-2 sm:after:inset-x-2 after:h-0.5 after:origin-left after:bg-magi after:transition-transform after:duration-300 hover:text-paper hover:after:scale-x-100 ${
                   isActive ? "text-paper after:scale-x-100" : "after:scale-x-0"
                 }`}
               >
-                <span className="opacity-50">0{i + 1}</span> {link.label}
+                <span className="hidden opacity-80 sm:inline">0{i + 1} </span>
+                {link.label}
               </a>
             );
           })}
@@ -88,7 +89,7 @@ export default function Nav() {
             type="button"
             onClick={() => setSound(!soundOn)}
             aria-pressed={soundOn}
-            aria-label="Toggle interface sounds"
+            title="Interface sounds"
             className="flex items-center gap-1.5 border border-magi/50 px-2 py-1 transition hover:border-magi hover:bg-magi/10 active:scale-95"
           >
             <span className="flex h-3 items-end gap-0.5" aria-hidden="true">
@@ -102,7 +103,8 @@ export default function Nav() {
                 />
               ))}
             </span>
-            SND {soundOn ? "ON" : "OFF"}
+            <span className="sr-only sm:not-sr-only">SND </span>
+            {soundOn ? "ON" : "OFF"}
           </button>
         </div>
       </div>

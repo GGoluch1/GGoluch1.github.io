@@ -12,6 +12,7 @@
 // image     - optional, put files in public/projects/ and reference as "/projects/name.png"
 // repo      - optional source link
 // live      - optional deployed link
+// github    - optional "owner/repo"; shows live stats (last push, stars, language)
 
 export const projects = [
   {
@@ -24,6 +25,7 @@ export const projects = [
     year: "2026",
     repo: "https://github.com/GGoluch1/GGoluch1.github.io",
     live: "https://gabrielgoluch.me",
+    github: "GGoluch1/GGoluch1.github.io",
   },
   {
     file: "002",

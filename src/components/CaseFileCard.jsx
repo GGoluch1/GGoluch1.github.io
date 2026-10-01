@@ -1,3 +1,4 @@
+import { useGitHubRepo } from "../hooks/useGitHubRepo";
 import { useInView } from "../hooks/useInView";
 
 const STATUS = {
@@ -37,8 +38,9 @@ function FileLink({ href, children }) {
 }
 
 export default function CaseFileCard({ project }) {
-  const { file, title, blurb, tags, status, progress, year, image, repo, live } = project;
+  const { file, title, blurb, tags, status, progress, year, image, repo, live, github } = project;
   const [ref, inView] = useInView(0.4);
+  const stats = useGitHubRepo(github);
   const pct = Math.min(Math.max(progress, 0), 100);
 
   return (
@@ -51,7 +53,7 @@ export default function CaseFileCard({ project }) {
         CASE No.{file}
       </div>
 
-      <div className="flex items-center justify-between border-b border-magi/30 px-4 py-2 text-[10px] tracking-[0.25em] text-magi/70">
+      <div className="flex items-center justify-between border-b border-magi/30 px-4 py-2 text-[10px] tracking-[0.25em] text-magi/80">
         <span>特務機関ネルフ // CASE FILE</span>
         <span>{year}</span>
       </div>
@@ -64,7 +66,7 @@ export default function CaseFileCard({ project }) {
         />
       )}
 
-      <div className="relative flex flex-1 flex-col gap-4 p-4">
+      <div className="relative flex flex-1 flex-col gap-4 overflow-hidden p-4">
         {/* "Classified" stamp that slams in on hover */}
         <span
           aria-hidden="true"
@@ -89,6 +91,13 @@ export default function CaseFileCard({ project }) {
             </li>
           ))}
         </ul>
+
+        {stats && (
+          <p className="animate-line-in text-[11px] tracking-widest text-cyan">
+            &gt; UPLINK // LAST PUSH {stats.pushed.toUpperCase()} // ★ {stats.stars}
+            {stats.language && ` // ${stats.language.toUpperCase()}`}
+          </p>
+        )}
 
         <div className="mt-auto">
           <div className="flex justify-between text-[11px] tracking-widest">

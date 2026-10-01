@@ -13,9 +13,9 @@ export default function MagiPanel({ name, number, data, approved, className = ""
         }`}
       >
         <div className="flex items-baseline justify-between gap-2">
-          <h3 className="font-title text-lg font-black tracking-wide">
+          <h2 className="font-title text-lg font-black tracking-wide">
             {name}·{number}
-          </h3>
+          </h2>
           <span
             key={String(approved)}
             className={`font-title font-black ${approved ? "animate-stamp glow" : "animate-blink"}`}
@@ -23,7 +23,7 @@ export default function MagiPanel({ name, number, data, approved, className = ""
             {approved ? "承認" : "審議中"}
           </span>
         </div>
-        <p className="text-[10px] tracking-[0.3em] opacity-70">{data.role}</p>
+        <p className="text-[10px] tracking-[0.3em] opacity-80">{data.role}</p>
         <ul className="mt-3 space-y-1 text-xs text-paper/80">
           {data.lines.map((line, i) => (
             <li

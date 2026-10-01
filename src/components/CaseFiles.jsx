@@ -9,7 +9,7 @@ export default function CaseFiles() {
       <TitleCard episode="02" title="NERV CASE FILES" jp="特務機関ネルフ 機密文書 // CLASSIFIED ARCHIVE" />
       <div className="mx-auto max-w-6xl px-4 py-16">
         <Reveal variant="wipe">
-          <p className="mb-8 text-sm text-magi/70">
+          <p className="mb-8 text-sm text-magi/80">
             &gt; QUERY CASE_FILES // {projects.length} RECORDS FOUND // HOVER TO DECLASSIFY
           </p>
         </Reveal>
