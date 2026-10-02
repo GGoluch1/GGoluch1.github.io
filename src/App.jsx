@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import AlertBar from "./components/AlertBar";
 import BootScreen from "./components/BootScreen";
 import CaseFiles from "./components/CaseFiles";
@@ -41,15 +41,15 @@ export default function App() {
     setBooted(true);
   }, []);
 
-  // Deep links (gabrielgoluch.me/#comms): jump to the section once the page is
-  // usable. The browser's own jump gets lost while the boot screen locks scrolling.
-  useEffect(() => {
-    if (!booted) return;
-    const id = decodeURIComponent(window.location.hash.slice(1));
-    if (!id) return;
-    const frame = requestAnimationFrame(() => goTo(id, { instant: true }));
-    return () => cancelAnimationFrame(frame);
-  }, [booted]);
+  // A boot sequence always lands on the top section. Without this, a leftover
+  // #files / #comms in the URL or the browser's scroll restoration on reload
+  // would leave the page mid-way down when the boot screen clears.
+  useLayoutEffect(() => {
+    if (mode === "none") return;
+    history.scrollRestoration = "manual";
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    window.scrollTo(0, 0);
+  }, [mode]);
 
   // One delegated listener for: soft UI sounds on links/buttons, and smooth
   // in-page navigation for every "#section" link (no back-button history spam).

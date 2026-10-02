@@ -3,9 +3,10 @@
 export const profile = {
   firstName: "GABRIEL",
   lastName: "GOLUCH",
-  designation: "DEVELOPER // BUILDER // PILOT CANDIDATE",
-  tagline:
-    "I build personal projects and occasionally sync with giant robots. This is the archive.",
+  // Pilots in Eva are "Children", picked by the Marduk Institute.
+  designation: "SIXTH CHILD // MARDUK INSTITUTE SELECTION",
+  // Shinji's line from the first episode, before he gets in the robot.
+  tagline: "I mustn't run away. I mustn't run away. I mustn't run away.",
 
   // Plain-language summary shown in the hero. Search engines lean on this
   // sentence to understand who the site is about, so keep it literal.
@@ -26,7 +27,7 @@ export const profile = {
     },
     balthasar: {
       role: "THE GUARDIAN",
-      lines: ["Clean, useful tools", "Learning in public"],
+      lines: ["The hedgehog's dilemma", "Instrumentality: vetoed"],
     },
     casper: {
       role: "THE PERSON",
