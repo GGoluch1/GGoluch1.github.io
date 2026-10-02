@@ -6,6 +6,8 @@ import Monolith from "./components/eggs/Monolith";
 import Rei from "./components/eggs/Rei";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
+import ATField from "./components/ATField";
+import Isolation from "./components/Isolation";
 import Links from "./components/Links";
 import Nav from "./components/Nav";
 import { isUnlocked, useSeele } from "./lib/eggs";
@@ -138,6 +140,8 @@ export default function App() {
       )}
 
       <Monolith />
+      <Isolation />
+      <ATField />
       {booted && <Rei />}
       <Suspense fallback={null}>
         {panel === "terminal" && <Terminal onClose={closePanel} />}

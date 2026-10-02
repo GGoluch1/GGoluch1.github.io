@@ -11,6 +11,7 @@ let enabled = readPref();
 let ctx = null;
 let unlocked = false; // browsers only allow audio after a user gesture
 let lastHover = 0;
+let muted = false; // S-DAT isolation mode and a dead battery silence the UI
 
 function readPref() {
   try {
@@ -42,7 +43,7 @@ function audio() {
 }
 
 function tone(freq, dur = 0.06, vol = 0.03, type = "sine", when = 0) {
-  if (!enabled) return;
+  if (!enabled || muted) return;
   const ac = audio();
   if (!ac) return;
 
@@ -61,7 +62,7 @@ function tone(freq, dur = 0.06, vol = 0.03, type = "sine", when = 0) {
 
 // Pitch glide from one frequency to another.
 function slide(from, to, dur, vol, type = "sine", when = 0) {
-  if (!enabled) return;
+  if (!enabled || muted) return;
   const ac = audio();
   if (!ac) return;
 
@@ -83,7 +84,7 @@ let noise = null;
 
 // A short burst of filtered white noise (claps, the positron beam).
 function burst(when, dur, vol, freq) {
-  if (!enabled) return;
+  if (!enabled || muted) return;
   const ac = audio();
   if (!ac) return;
 
@@ -172,6 +173,16 @@ export const sfx = {
     slide(90, 30, 2.2, 0.04);
     for (let i = 0; i < 18; i++) tone(300 + Math.random() * 500, 0.05, 0.008, "sine", 0.3 + Math.random() * 1.6);
   },
+  atField() {
+    tone(1900, 0.09, 0.008, "sine");
+    tone(2850, 0.12, 0.006, "sine", 0.04);
+  },
+  unplug() {
+    slide(180, 60, 0.25, 0.03, "square");
+  },
+  plug() {
+    slide(60, 180, 0.2, 0.03, "square");
+  },
   ode() {
     const beat = 0.34;
     let t = 0;
@@ -190,7 +201,7 @@ export const sfx = {
 
 // Low drone for Terminal Dogma. Returns a function that fades it out.
 export function startHum() {
-  if (!enabled) return () => {};
+  if (!enabled || muted) return () => {};
   const ac = audio();
   if (!ac) return () => {};
 
@@ -216,6 +227,15 @@ export function startHum() {
 }
 
 export const soundOn = () => enabled;
+
+export function setMuted(on) {
+  muted = on;
+}
+
+// The shared AudioContext, for the S-DAT's music (which plays even with
+// interface sounds off, since pressing play is a request for sound).
+// Null until the visitor has interacted with the page.
+export const getAudio = () => audio();
 
 export function setSound(on) {
   enabled = on;

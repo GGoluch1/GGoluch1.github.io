@@ -13,9 +13,14 @@ My personal site: a portfolio and link hub styled after the MAGI supercomputer f
 - **NERV case files** for projects, with hover-to-declassify redactions and live GitHub stats.
 - **Comms terminal** for social links and an optional résumé download.
 - **NERV ID card maker**: visitors issue themselves a personnel card, drawn on a canvas and downloaded as a PNG. Photos never leave their device.
-- **S-DAT player** looping tracks 25 and 26, like Shinji's.
+- **S-DAT player** that plays classical pieces synthesized in the browser (Bach, Beethoven, Pachelbel). Its display only ever shows tracks 25 and 26, and pressing play puts the earphones in: the rest of the page goes grey and quiet.
 - **MAGI terminal**: press `` ` `` (or the footer button) for a command line. Try `help`.
 - **Tokyo-3 time of day**: a sunset tint in the evening and a moon at night, from the visitor's clock.
+- **Eva unit colors**: MAGI, Unit-00, Unit-01 or Unit-02, picked in the footer.
+- **Umbilical cable** in the nav. Unplug it and the internal battery lasts five minutes.
+- **Mission briefing** with what I'm working on now (`src/data/briefing.js`).
+- **Eva calendar**: premieres, Second Impact and birthdays change the emergency bar. Preview a date with `?date=MM-DD`.
+- **A.T. Field** ripples when you click anywhere that isn't a link or button.
 - **Soft UI sounds**, synthesized with the Web Audio API and off by default.
 - **Accessible motion**: everything still works with reduced motion turned on.
 - Some things only show up if you go looking.
@@ -41,6 +46,7 @@ All content lives in `src/data/`:
 | --- | --- |
 | `profile.js` | Name, tagline, the plain-language summary, and the three MAGI panels |
 | `projects.js` | Case files (projects). Field docs are at the top of the file |
+| `briefing.js` | Mission briefing: current tasks and when they were last updated |
 | `socials.js` | Comms channels |
 | `site.js` | Live URL, résumé path, GoatCounter analytics and the visitor counter |
 

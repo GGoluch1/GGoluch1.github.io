@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { profile } from "../data/profile";
-import { isUnlocked, sealCount, useSeele } from "../lib/eggs";
+import { BONUSES, isUnlocked, sealCount, useSeele } from "../lib/eggs";
+import { UNITS, setUnit, useUnit } from "../lib/theme";
 import { openUi } from "../lib/ui";
 import PenPen from "./eggs/PenPen";
 import SeeleEyes from "./eggs/SeeleEyes";
@@ -17,7 +18,10 @@ function SeeleTracker({ seele }) {
     <div className="mt-8 flex flex-col items-center gap-2">
       <SeeleEyes found={seele.found} />
       <p className="text-[10px] tracking-[0.3em] text-nerv/90">
-        SEELE // {sealCount(seele)} OF 7 SEALS BROKEN{seele.found.has("penpen") ? " // + PEN PEN" : ""}
+        SEELE // {sealCount(seele)} OF 7 SEALS BROKEN
+        {BONUSES.filter((b) => seele.found.has(b.id))
+          .map((b) => ` // + ${b.name}`)
+          .join("")}
         {seele.ended ? " // おめでとう" : ""}
       </p>
       {unlocked && (
@@ -25,6 +29,34 @@ function SeeleTracker({ seele }) {
           ▼ DESCEND TO TERMINAL DOGMA ▼
         </a>
       )}
+    </div>
+  );
+}
+
+// Eva unit color themes.
+function UnitPicker() {
+  const unit = useUnit();
+  return (
+    <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[10px] tracking-[0.2em]" role="group" aria-label="Color theme">
+      <span className="w-full text-magi/70 sm:w-auto">COLORS //</span>
+      {UNITS.map((u) => (
+        <button
+          key={u.id}
+          type="button"
+          onClick={() => setUnit(u.id)}
+          aria-pressed={unit === u.id}
+          className={`flex items-center gap-1.5 border px-2 py-1 transition-colors ${
+            unit === u.id ? "border-magi text-paper" : "border-magi/30 text-magi/70 hover:border-magi hover:text-magi"
+          }`}
+        >
+          <span className="flex" aria-hidden="true">
+            {u.colors.map((c) => (
+              <span key={c} className="size-2" style={{ background: c }} />
+            ))}
+          </span>
+          {u.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -87,6 +119,7 @@ export default function Footer() {
           >
             &gt;_ MAGI TERMINAL
           </button>
+          <UnitPicker />
           <p className="mt-6 hidden text-xs tracking-widest text-magi/80 md:block" aria-hidden="true">
             KEYS // [1] MAGI · [2] FILES · [3] COMMS · [`] TERMINAL
           </p>

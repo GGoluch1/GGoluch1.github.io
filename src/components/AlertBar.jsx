@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { todaysEvent } from "../lib/calendar";
 import { find } from "../lib/eggs";
 import { KaworuSong } from "./eggs/Captions";
 
 // Scrolling NERV emergency banner. Content is duplicated so the loop is seamless.
 // Hovering pauses it. One entry isn't like the others: Kaworu (seal 4).
+// On Eva calendar dates (src/lib/calendar.js) the bar carries the event instead.
 const TABRIS = "⚠ 第17使徒 // TABRIS // PATTERN BLUE // NOT AN EMERGENCY";
 
 export default function AlertBar({ text }) {
   const [song, setSong] = useState(false);
-  const items = Array.from({ length: 6 }, (_, i) => (i === 3 ? TABRIS : text));
+  const [event] = useState(todaysEvent);
+  const items = Array.from({ length: 6 }, (_, i) => (i === 3 ? TABRIS : (event?.text ?? text)));
 
   const sing = () => {
     if (song) return;

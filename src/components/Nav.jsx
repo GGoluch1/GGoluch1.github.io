@@ -4,6 +4,7 @@ import { fetchAngelCount } from "../lib/remote";
 import { setSound, useSound } from "../lib/sound";
 import { timeOfDay } from "../lib/tod";
 import { AsukaStamp } from "./eggs/Captions";
+import Umbilical from "./Umbilical";
 
 const links = [
   { id: "magi", label: "MAGI" },
@@ -124,7 +125,7 @@ export default function Nav() {
           })}
         </nav>
 
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-2 text-xs sm:gap-3">
           <div className="hidden items-center gap-2 md:flex" aria-hidden="true">
             <span className="size-2 animate-blink bg-sync" />
             <span className="text-sync">ONLINE</span>
@@ -137,6 +138,7 @@ export default function Nav() {
               </span>
             )}
           </div>
+          <Umbilical />
           <button
             type="button"
             onClick={() => setSound(!soundOn)}

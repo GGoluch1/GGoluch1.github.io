@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import { briefing } from "../data/briefing";
 import { profile } from "../data/profile";
 import { projects } from "../data/projects";
 import { socials } from "../data/socials";
-import { PENPEN, SEALS, isUnlocked, nextHint, resetSeele, sealCount, useSeele } from "../lib/eggs";
+import { BONUSES, SEALS, isUnlocked, nextHint, resetSeele, sealCount, useSeele } from "../lib/eggs";
 import { goTo } from "../lib/navigate";
+import { todaysEvent, upcoming } from "../lib/calendar";
+import { plugIn, unplug } from "../lib/power";
 import { fetchAngelCount } from "../lib/remote";
+import { sdat } from "../lib/sdat";
 import { setSound } from "../lib/sound";
+import { UNITS, setUnit } from "../lib/theme";
 import { timeOfDay } from "../lib/tod";
 import { openUi } from "../lib/ui";
 import Modal from "./Modal";
@@ -18,8 +23,12 @@ const HELP = `AVAILABLE COMMANDS
   ls [dir]          list files
   cat <file>        read a file
   open <section>    go to magi, files, comms (cd works too)
+  briefing          current operations
+  calendar          upcoming Eva dates
   id                issue yourself a NERV ID card
-  sdat              what's playing on the S-DAT
+  play / stop       the S-DAT
+  unit <name>       colors: magi, 00, 01, 02
+  unplug / plug     the umbilical cable
   stats             angels repelled so far
   seele             scenario progress
   hint              ask SEELE for guidance
@@ -59,7 +68,7 @@ function seeleReport(seele) {
     const broken = seele.found.has(s.id);
     return `SEAL ${i + 1}  ${broken ? "◉" : "○"}  ${broken ? s.name : "??????"}`;
   });
-  if (seele.found.has(PENPEN.id)) rows.push("BONUS   ◉  PEN PEN");
+  BONUSES.filter((b) => seele.found.has(b.id)).forEach((b) => rows.push(`BONUS   ◉  ${b.name}`));
   return `THE SCENARIO // ${sealCount(seele)} OF 7 SEALS BROKEN\n${rows.join("\n")}`;
 }
 
@@ -137,8 +146,33 @@ export default function Terminal({ onClose }) {
       case "robot":
         return thenClose(() => openUi("gendo"));
       case "sdat":
-      case "np":
-        return print("TRACK 25 ⇄ TRACK 26 // REPEAT ALL");
+      case "play":
+        sdat.play();
+        return print("▶ S-DAT // EARPHONES IN", "ok");
+      case "stop":
+        sdat.stop();
+        return print("■ S-DAT // EARPHONES OUT", "ok");
+      case "briefing":
+        return print(
+          `作戦概要 // MISSION BRIEFING // UPDATED ${briefing.updated.replaceAll("-", ".")}\n${briefing.tasks
+            .map((t, i) => `OP-${String(i + 1).padStart(2, "0")}  ${t.name.toUpperCase()}  [${t.status}]`)
+            .join("\n")}`,
+        );
+      case "calendar":
+        return print(upcoming().map((e) => `${e.date}  ${e.en}`).join("\n"));
+      case "unit":
+      case "theme": {
+        const unit = UNITS.find((u) => u.id === arg.replace(/^unit-?/, ""));
+        if (!unit) return print("unit: TRY magi, 00, 01 OR 02", "err");
+        setUnit(unit.id);
+        return print(`${unit.label} COLORS ENGAGED`, "ok");
+      }
+      case "unplug":
+        unplug();
+        return print("UMBILICAL CABLE DISCONNECTED // INTERNAL POWER: 5 MINUTES", "err");
+      case "plug":
+        plugIn();
+        return print("UMBILICAL CABLE CONNECTED // EXTERNAL POWER", "ok");
       case "stats": {
         print("QUERYING MAGI…", "sys");
         const count = await fetchAngelCount().catch(() => null);
@@ -162,7 +196,8 @@ export default function Terminal({ onClose }) {
       case "date":
       case "time": {
         const tokyo = new Date().toLocaleString("en-GB", { timeZone: "Asia/Tokyo", hour12: false });
-        return print(`TOKYO-3 // ${tokyo} JST // ${timeOfDay().toUpperCase()} WHERE YOU ARE`);
+        const event = todaysEvent();
+        return print(`TOKYO-3 // ${tokyo} JST // ${timeOfDay().toUpperCase()} WHERE YOU ARE${event ? `\n${event.text}` : ""}`);
       }
       case "sudo":
         return print("MELCHIOR-1 否決 · BALTHASAR-2 否決 · CASPER-3 否決\nREQUEST DENIED. NICE TRY.", "err");

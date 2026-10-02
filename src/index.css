@@ -138,6 +138,10 @@
 @keyframes beam {
   from { transform: rotate(var(--a)) scaleX(0); }
 }
+@keyframes at-field {
+  from { transform: scale(0.15); opacity: 0.9; }
+  to { transform: scale(1); opacity: 0; }
+}
 @keyframes waddle {
   0%, 100% { rotate: -8deg; }
   50% { rotate: 8deg; }
@@ -222,6 +226,45 @@
   &:focus-visible::before {
     transform: scaleX(1);
   }
+}
+
+/* Eva unit themes (src/lib/theme.js). Each re-points the color tokens, and
+   the hex grid, whose color is baked into its SVG, gets a matching copy. */
+[data-unit="00"] {
+  --color-magi: #6aa8ff;
+  --color-sync: #ffd23f;
+  --color-amber: #9cc6ff;
+}
+[data-unit="01"] {
+  --color-magi: #a77bff;
+  --color-sync: #8cff3a;
+  --color-amber: #c6a8ff;
+}
+[data-unit="02"] {
+  --color-magi: #ff3d3d;
+  --color-nerv: #ffb000;
+  --color-sync: #ffd23f;
+  --color-amber: #ff8a7a;
+}
+[data-unit="00"] .hex-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%236aa8ff' stroke-opacity='0.09' stroke-width='1'/%3E%3C/svg%3E");
+}
+[data-unit="01"] .hex-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23a77bff' stroke-opacity='0.09' stroke-width='1'/%3E%3C/svg%3E");
+}
+[data-unit="02"] .hex-grid {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ff3d3d' stroke-opacity='0.09' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+/* Umbilical cable out and battery dead: everything freezes and goes dark */
+html.powerless #root {
+  filter: grayscale(1) brightness(0.4);
+}
+html.powerless #root *,
+html.powerless #root *::before,
+html.powerless #root *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
 }
 
 /* Tokyo-3 time of day (see src/lib/tod.js) */

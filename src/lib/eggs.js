@@ -1,6 +1,6 @@
 // The easter-egg hunt. Seven seals, one per eye on SEELE's mask; breaking all
-// seven opens Heaven's Door to Terminal Dogma below the footer. Pen Pen is a
-// bonus that isn't part of the scenario.
+// seven opens Heaven's Door to Terminal Dogma below the footer. Pen Pen and
+// the S-DAT's track 27 are bonuses that aren't part of the scenario.
 //
 // Progress lives in this browser's localStorage.
 // Add ?seele to the URL to reset it (in dev, ?seele=all breaks every seal).
@@ -53,12 +53,20 @@ export const SEALS = [
   },
 ];
 
-export const PENPEN = {
-  id: "penpen",
-  name: "PEN PEN",
-  line: "A warm-water penguin. Not in the scenario.",
-  hint: "Something warm-blooded lives behind the hazard tape at the bottom.",
-};
+export const BONUSES = [
+  {
+    id: "penpen",
+    name: "PEN PEN",
+    line: "A warm-water penguin. Not in the scenario.",
+    hint: "Something warm-blooded lives behind the hazard tape at the bottom.",
+  },
+  {
+    id: "track27",
+    name: "TRACK 27",
+    line: "Track 27. The tape finally moved on.",
+    hint: "The S-DAT only knows two tracks. Hold on long enough and it might learn a third.",
+  },
+];
 
 const KEY = "magi-seele";
 const EMPTY = { found: new Set(), ended: false };
@@ -115,7 +123,7 @@ export function find(id) {
   update({ ...state, found: new Set(state.found).add(id) });
 
   const index = SEALS.findIndex((s) => s.id === id);
-  const egg = index >= 0 ? SEALS[index] : PENPEN;
+  const egg = index >= 0 ? SEALS[index] : BONUSES.find((b) => b.id === id);
   track(`egg-${id}`, `Easter egg: ${egg.name}`);
   announce({ key: id, number: index >= 0 ? String(index + 1).padStart(2, "0") : "00", line: egg.line });
 
@@ -135,12 +143,10 @@ export function resetSeele() {
   update(EMPTY);
 }
 
-// The next unbroken seal's hint, then Pen Pen's, then nothing.
+// The next unbroken seal's hint, then the bonuses', then nothing.
 export function nextHint() {
-  const seal = SEALS.find((s) => !state.found.has(s.id));
-  if (seal) return seal.hint;
-  if (!state.found.has(PENPEN.id)) return PENPEN.hint;
-  return null;
+  const egg = [...SEALS, ...BONUSES].find((s) => !state.found.has(s.id));
+  return egg?.hint ?? null;
 }
 
 function subscribe(fn) {
