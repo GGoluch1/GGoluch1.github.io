@@ -3,10 +3,10 @@ import { find, useSeele } from "../../lib/eggs";
 import { dialogOpen } from "../../lib/ui";
 import Overlay from "../Overlay";
 
-// Seal 6. Leave the page alone for a minute and Rei quietly appears in the
+// Seal 6. Leave the page alone for 30 seconds and Rei quietly appears in the
 // corner. Click her line before it fades.
 
-const IDLE_MS = 60_000;
+const IDLE_MS = 30_000;
 const SHOW_MS = 15_000;
 const EVENTS = ["pointermove", "pointerdown", "keydown", "scroll", "wheel", "touchstart"];
 
