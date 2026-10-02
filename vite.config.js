@@ -38,14 +38,13 @@ function subsetTitleFont() {
 // talks to must be listed here, or the browser will block it.
 function contentSecurityPolicy() {
   const goatcounter = site.goatcounter ? `https://${site.goatcounter}.goatcounter.com` : ''
-  const lastfm = site.lastfm?.user && site.lastfm?.apiKey
   const policy = [
     "default-src 'self'",
     "script-src 'self'",
     "style-src 'self' https://fonts.googleapis.com",
     'font-src https://fonts.gstatic.com',
-    `img-src 'self' data: ${goatcounter} ${lastfm ? 'https://lastfm.freetls.fastly.net' : ''}`,
-    `connect-src 'self' https://api.github.com ${goatcounter} ${lastfm ? 'https://ws.audioscrobbler.com' : ''}`,
+    `img-src 'self' data: ${goatcounter}`,
+    `connect-src 'self' https://api.github.com ${goatcounter}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'none'",

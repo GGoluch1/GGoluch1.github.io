@@ -13,7 +13,7 @@ My personal site: a portfolio and link hub styled after the MAGI supercomputer f
 - **NERV case files** for projects, with hover-to-declassify redactions and live GitHub stats.
 - **Comms terminal** for social links and an optional résumé download.
 - **NERV ID card maker**: visitors issue themselves a personnel card, drawn on a canvas and downloaded as a PNG. Photos never leave their device.
-- **S-DAT player** showing what I'm listening to via Last.fm, or looping tracks 25 and 26 like Shinji's.
+- **S-DAT player** looping tracks 25 and 26, like Shinji's.
 - **MAGI terminal**: press `` ` `` (or the footer button) for a command line. Try `help`.
 - **Tokyo-3 time of day**: a sunset tint in the evening and a moon at night, from the visitor's clock.
 - **Soft UI sounds**, synthesized with the Web Audio API and off by default.
@@ -42,7 +42,7 @@ All content lives in `src/data/`:
 | `profile.js` | Name, tagline, the plain-language summary, and the three MAGI panels |
 | `projects.js` | Case files (projects). Field docs are at the top of the file |
 | `socials.js` | Comms channels |
-| `site.js` | Live URL, résumé path, GoatCounter analytics, the visitor counter and Last.fm |
+| `site.js` | Live URL, résumé path, GoatCounter analytics and the visitor counter |
 
 ## Search engines
 

@@ -4,7 +4,7 @@ import { projects } from "../data/projects";
 import { socials } from "../data/socials";
 import { PENPEN, SEALS, isUnlocked, nextHint, resetSeele, sealCount, useSeele } from "../lib/eggs";
 import { goTo } from "../lib/navigate";
-import { fetchAngelCount, fetchNowPlaying, timeAgo } from "../lib/remote";
+import { fetchAngelCount } from "../lib/remote";
 import { setSound } from "../lib/sound";
 import { timeOfDay } from "../lib/tod";
 import { openUi } from "../lib/ui";
@@ -137,12 +137,8 @@ export default function Terminal({ onClose }) {
       case "robot":
         return thenClose(() => openUi("gendo"));
       case "sdat":
-      case "np": {
-        print("QUERYING S-DAT…", "sys");
-        const np = await fetchNowPlaying().catch(() => null);
-        if (!np) return print("TRACK 25 ⇄ TRACK 26 // NO SIGNAL");
-        return print(`${np.playing ? "▶ NOW PLAYING" : `■ LAST PLAYED ${np.at ? timeAgo(np.at) : ""}`}\n${np.title} — ${np.artist}`);
-      }
+      case "np":
+        return print("TRACK 25 ⇄ TRACK 26 // REPEAT ALL");
       case "stats": {
         print("QUERYING MAGI…", "sys");
         const count = await fetchAngelCount().catch(() => null);
