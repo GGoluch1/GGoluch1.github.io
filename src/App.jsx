@@ -16,6 +16,7 @@ const VISITED_KEY = "magi-visited"; // has ever seen the full boot
 // "none" when it already played in this tab. Add ?boot to the URL to force "full".
 // Visitors who prefer reduced motion still get the boot, just without movement.
 function bootMode() {
+  if (typeof window === "undefined") return "full"; // build-time prerender
   if (new URLSearchParams(window.location.search).has("boot")) return "full";
   try {
     if (sessionStorage.getItem(SESSION_KEY) === "1") return "none";

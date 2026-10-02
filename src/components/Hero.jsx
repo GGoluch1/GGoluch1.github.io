@@ -80,7 +80,8 @@ export default function Hero({ active }) {
             <p className="mt-6 inline-block bg-nerv px-2 py-0.5 text-sm tracking-widest text-void">
               {profile.designation}
             </p>
-            <p className="mt-6 max-w-md text-paper/75">{profile.tagline}</p>
+            <p className="mt-6 max-w-md text-paper">{profile.about}</p>
+            <p className="mt-3 max-w-md text-paper/75">{profile.tagline}</p>
           </div>
 
           <div {...enter(active, 700)}>

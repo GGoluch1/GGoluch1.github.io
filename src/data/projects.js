@@ -1,5 +1,4 @@
 // Each project is a classified NERV case file.
-// TODO: replace the placeholders with your real projects.
 //
 // file      - case number shown on the folder tab, e.g. "001"
 // title     - project name
@@ -26,27 +25,5 @@ export const projects = [
     repo: "https://github.com/GGoluch1/GGoluch1.github.io",
     live: "https://gabrielgoluch.me",
     github: "GGoluch1/GGoluch1.github.io",
-  },
-  {
-    file: "002",
-    title: "TODO: Project Name",
-    blurb: "One or two sentences on what it does and [[why it's interesting]].",
-    tags: ["TODO", "Tags"],
-    status: "UNDER REVIEW",
-    progress: 25,
-    year: "2026",
-    repo: "",
-    live: "",
-  },
-  {
-    file: "003",
-    title: "TODO: Project Name",
-    blurb: "One or two sentences on what it does and [[why it's interesting]].",
-    tags: ["TODO", "Tags"],
-    status: "CLOSED",
-    progress: 100,
-    year: "2025",
-    repo: "",
-    live: "",
   },
 ];

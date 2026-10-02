@@ -24,7 +24,7 @@ React 19, Vite 8 and Tailwind CSS 4, deployed to GitHub Pages by GitHub Actions 
 ```bash
 npm install
 npm run dev      # http://localhost:5173  (add ?boot to replay the boot sequence)
-npm run build    # production build in dist/
+npm run build    # production build in dist/, with the page prerendered
 npm run lint
 ```
 
@@ -34,10 +34,17 @@ All content lives in `src/data/`:
 
 | File | What it controls |
 | --- | --- |
-| `profile.js` | Name, tagline, and the three MAGI panels |
+| `profile.js` | Name, tagline, the plain-language summary, and the three MAGI panels |
 | `projects.js` | Case files (projects). Field docs are at the top of the file |
 | `socials.js` | Comms channels |
-| `site.js` | Résumé path and GoatCounter analytics code |
+| `site.js` | Live URL, résumé path and GoatCounter analytics code |
+
+## Search engines
+
+- **Prerendered HTML**: `npm run build` renders the app once with React's server renderer (`src/entry-server.jsx`, `scripts/prerender.js`) and writes the markup into `dist/index.html`, so crawlers see the text without running JavaScript. In the browser, the live app replaces it.
+- **Structured data**: a schema.org `Person` (name, school, profile links) is generated from `src/data/` by a plugin in `vite.config.js`. Validate it with [Google's Rich Results Test](https://search.google.com/test/rich-results).
+- **Sitemap**: `sitemap.xml` is generated at build time with the build date as `lastmod`. `robots.txt` points to it.
+- The `<title>` and description in `index.html` are deliberately plain. They're what Google shows in results.
 
 ## Security
 

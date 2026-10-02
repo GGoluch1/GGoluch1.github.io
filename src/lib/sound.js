@@ -101,5 +101,5 @@ function subscribe(fn) {
 }
 
 export function useSound() {
-  return useSyncExternalStore(subscribe, () => enabled);
+  return useSyncExternalStore(subscribe, () => enabled, () => false); // off when prerendering
 }

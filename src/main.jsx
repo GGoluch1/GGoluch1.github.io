@@ -11,6 +11,9 @@ document.querySelectorAll('link[data-async-font]').forEach((link) => {
 
 initAnalytics()
 
+// #root already holds prerendered HTML for search engines (scripts/prerender.js).
+// createRoot replaces it instead of hydrating, because the boot screen, clock and
+// animations legitimately differ from the build-time snapshot.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
