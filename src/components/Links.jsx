@@ -1,13 +1,18 @@
 import { site } from "../data/site";
 import { socials } from "../data/socials";
+import { openUi } from "../lib/ui";
 import Reveal from "./Reveal";
+import SDat from "./SDat";
 import TitleCard from "./TitleCard";
 
+// A link row, or a button row when there's no href.
 function ChannelRow({ code, name, detail, action, hoverAction, arrow = "▸", ...linkProps }) {
+  const Tag = linkProps.href ? "a" : "button";
   return (
-    <a
+    <Tag
+      {...(Tag === "button" ? { type: "button" } : {})}
       {...linkProps}
-      className="wipe-fill group flex items-center gap-4 px-3 py-3 transition-colors duration-300 hover:text-void focus-visible:text-void"
+      className="wipe-fill group flex w-full items-center gap-4 px-3 py-3 text-left transition-colors duration-300 hover:text-void focus-visible:text-void"
     >
       <span className="text-xs text-magi/80 transition-colors group-hover:text-void">{code}</span>
       <span className="font-title text-lg font-black text-paper transition duration-300 group-hover:translate-x-1 group-hover:text-void">
@@ -20,7 +25,7 @@ function ChannelRow({ code, name, detail, action, hoverAction, arrow = "▸", ..
         <span className="group-hover:hidden">{action}</span>
         <span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">{arrow}</span>
       </span>
-    </a>
+    </Tag>
   );
 }
 
@@ -72,8 +77,23 @@ export default function Links() {
                   </Reveal>
                 </li>
               ))}
+              <li>
+                <Reveal variant="wipe" delay={240 + socials.length * 90}>
+                  <ChannelRow
+                    onClick={() => openUi("idcard")}
+                    code="REG-00"
+                    name="NERV ID CARD"
+                    detail="職員登録"
+                    action="ISSUE"
+                    hoverAction="REGISTERING"
+                  />
+                </Reveal>
+              </li>
             </ul>
           </div>
+        </Reveal>
+        <Reveal delay={200} className="mt-8">
+          <SDat />
         </Reveal>
       </div>
     </section>

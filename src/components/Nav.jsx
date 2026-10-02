@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
+import { find } from "../lib/eggs";
+import { fetchAngelCount } from "../lib/remote";
 import { setSound, useSound } from "../lib/sound";
+import { timeOfDay } from "../lib/tod";
+import { AsukaStamp } from "./eggs/Captions";
 
 const links = [
   { id: "magi", label: "MAGI" },
@@ -14,6 +18,27 @@ export default function Nav() {
   const barRef = useRef(null);
   const headerRef = useRef(null);
   const soundOn = useSound();
+  const [angels, setAngels] = useState(null);
+  const [asuka, setAsuka] = useState(false);
+  const knocks = useRef([]);
+
+  // GoatCounter's visitor total, as "Angels repelled".
+  useEffect(() => {
+    fetchAngelCount()
+      .then(setAngels)
+      .catch(() => {});
+  }, []);
+
+  // Seal 5: knock on NERV's logo five times in quick succession.
+  const knock = () => {
+    const now = performance.now();
+    knocks.current = [...knocks.current.filter((t) => now - t < 2500), now];
+    if (knocks.current.length >= 5 && !asuka) {
+      knocks.current = [];
+      setAsuka(true);
+      find("asuka");
+    }
+  };
 
   // Live clock
   useEffect(() => {
@@ -68,7 +93,7 @@ export default function Nav() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:gap-3">
-        <a href="#magi" className="group relative flex items-baseline gap-2 before:absolute before:-inset-y-2.5 before:inset-x-0">
+        <a href="#magi" onClick={knock} className="group relative flex items-baseline gap-2 before:absolute before:-inset-y-2.5 before:inset-x-0">
 
           <span className="font-title text-2xl font-black tracking-tight text-nerv transition group-hover:animate-glitch">
             NERV
@@ -103,7 +128,14 @@ export default function Nav() {
           <div className="hidden items-center gap-2 md:flex" aria-hidden="true">
             <span className="size-2 animate-blink bg-sync" />
             <span className="text-sync">ONLINE</span>
-            <span className="tabular-nums text-magi/80">{time}</span>
+            <span className="tabular-nums text-magi/80" title={`Tokyo-3 // ${timeOfDay(now)}`}>
+              {time}
+            </span>
+            {angels && (
+              <span className="hidden text-magi/80 lg:inline" title="Visitors so far">
+                · {angels} ANGELS REPELLED
+              </span>
+            )}
           </div>
           <button
             type="button"
@@ -128,6 +160,8 @@ export default function Nav() {
           </button>
         </div>
       </div>
+
+      {asuka && <AsukaStamp onDone={() => setAsuka(false)} />}
 
       {/* Scroll progress */}
       <div

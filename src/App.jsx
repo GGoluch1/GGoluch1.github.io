@@ -1,13 +1,23 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import AlertBar from "./components/AlertBar";
 import BootScreen from "./components/BootScreen";
 import CaseFiles from "./components/CaseFiles";
+import Monolith from "./components/eggs/Monolith";
+import Rei from "./components/eggs/Rei";
 import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 import Links from "./components/Links";
 import Nav from "./components/Nav";
+import { isUnlocked, useSeele } from "./lib/eggs";
 import { SECTIONS, goTo } from "./lib/navigate";
 import { sfx } from "./lib/sound";
+import { dialogOpen, onUi } from "./lib/ui";
+
+// Loaded on demand, so first-time visitors don't download them up front.
+// Terminal Dogma in particular only ever loads once all seven seals are broken.
+const Terminal = lazy(() => import("./components/Terminal"));
+const IdCard = lazy(() => import("./components/IdCard"));
+const Dogma = lazy(() => import("./components/dogma/Dogma"));
 
 const SESSION_KEY = "magi-booted"; // booted in this tab already
 const VISITED_KEY = "magi-visited"; // has ever seen the full boot
@@ -30,6 +40,14 @@ function bootMode() {
 export default function App() {
   const [mode] = useState(bootMode);
   const [booted, setBooted] = useState(mode === "none");
+  const [panel, setPanel] = useState(null); // "terminal" | "idcard" | null
+  const unlocked = isUnlocked(useSeele());
+  const closePanel = useCallback(() => setPanel(null), []);
+
+  useEffect(() => {
+    const offs = ["terminal", "idcard"].map((name) => onUi(name, () => setPanel(name)));
+    return () => offs.forEach((off) => off());
+  }, []);
 
   const finishBoot = useCallback(() => {
     try {
@@ -75,12 +93,17 @@ export default function App() {
     };
   }, []);
 
-  // Keyboard shortcuts: 1 / 2 / 3 jump to MAGI / FILES / COMMS.
+  // Keyboard shortcuts: 1 / 2 / 3 jump to MAGI / FILES / COMMS, ` opens the terminal.
   useEffect(() => {
     if (!booted) return;
     const onKey = (e) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
+      if (e.target.closest?.("input, textarea, select, [contenteditable]") || dialogOpen()) return;
+      if (e.key === "`") {
+        e.preventDefault();
+        setPanel("terminal");
+        return;
+      }
       const index = ["1", "2", "3"].indexOf(e.key);
       if (index < 0) return;
       e.preventDefault();
@@ -108,6 +131,18 @@ export default function App() {
         <Links />
       </main>
       <Footer />
+      {unlocked && (
+        <Suspense fallback={null}>
+          <Dogma />
+        </Suspense>
+      )}
+
+      <Monolith />
+      {booted && <Rei />}
+      <Suspense fallback={null}>
+        {panel === "terminal" && <Terminal onClose={closePanel} />}
+        {panel === "idcard" && <IdCard onClose={closePanel} />}
+      </Suspense>
 
       {/* CRT scanline overlay across the whole page */}
       <div className="crt pointer-events-none fixed inset-0 z-[70]" aria-hidden="true" />

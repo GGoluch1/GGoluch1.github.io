@@ -14,6 +14,9 @@
   --color-sync: #8cff3a;   /* Unit-01 green / "approved" */
   --color-cyan: #43d6ff;
   --color-paper: #f4efe6;  /* title-card white */
+  --color-rei: #a9c8ff;    /* Rei's pale blue */
+  --color-ramiel: #3d6bff; /* Ramiel's crystal blue */
+  --color-lilith: #5b2a8f; /* Lilith's mask */
 
   --font-title: "Noto Serif JP", "Times New Roman", serif;
   --font-mono: "Share Tech Mono", ui-monospace, monospace;
@@ -29,6 +32,16 @@
   --animate-meter: meter 0.9s ease-in-out infinite;
   --animate-crt-off: crt-off 0.55s cubic-bezier(0.7, 0, 0.3, 1) forwards;
   --animate-line-in: line-in 0.25s ease-out both;
+  --animate-fade-in: fade-in 0.6s ease-out both;
+  --animate-shake: shake 0.45s linear infinite;
+  --animate-pop: pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  --animate-rise: rise 3s ease-out both;
+  --animate-spin-y: spin-y 5s linear infinite;
+  --animate-monolith-in: monolith-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-flood: flood 1.8s cubic-bezier(0.6, 0, 0.4, 1) both;
+  --animate-bubble: bubble 3.5s linear infinite;
+  --animate-drip: drip 2.8s ease-in infinite;
+  --animate-eye-open: eye-open 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
 
   @keyframes blink {
     50% { opacity: 0; }
@@ -75,6 +88,59 @@
     from { opacity: 0; transform: translateX(-8px); }
     to { opacity: 1; transform: none; }
   }
+}
+
+/* Keyframes for the easter eggs and Terminal Dogma. Every animation starts
+   "from" a hidden state and ends at the element's normal style, so with
+   reduced motion (animations off) things are simply shown. */
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-7px, 3px); }
+  50% { transform: translate(6px, -4px); }
+  75% { transform: translate(-3px, -5px); }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(1.7); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(30px); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(-160px); }
+}
+@keyframes spin-y {
+  to { transform: rotateY(360deg); }
+}
+@keyframes monolith-in {
+  from { opacity: 0; transform: translateY(24px); }
+  40% { opacity: 0.4; }
+  50% { opacity: 1; }
+  60% { opacity: 0.5; }
+}
+@keyframes flood {
+  from { transform: translateY(100%); }
+}
+@keyframes bubble {
+  from { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.8; }
+  to { transform: translateY(-110vh); opacity: 0; }
+}
+@keyframes drip {
+  0% { transform: translateY(0); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  100% { transform: translateY(var(--d)); opacity: 0; }
+}
+@keyframes eye-open {
+  from { transform: scaleY(0.1); opacity: 0.2; }
+}
+@keyframes beam {
+  from { transform: rotate(var(--a)) scaleX(0); }
+}
+@keyframes waddle {
+  0%, 100% { rotate: -8deg; }
+  50% { rotate: 8deg; }
 }
 
 @layer base {
@@ -156,6 +222,31 @@
   &:focus-visible::before {
     transform: scaleX(1);
   }
+}
+
+/* Tokyo-3 time of day (see src/lib/tod.js) */
+.tod-sky {
+  transition: background 2s;
+}
+[data-tod="dusk"] .tod-sky {
+  background: linear-gradient(to bottom, rgb(255 120 40 / 0.2), rgb(238 28 51 / 0.08) 50%, transparent 85%);
+}
+[data-tod="night"] .tod-sky {
+  background: linear-gradient(to bottom, rgb(70 90 170 / 0.18), transparent 70%);
+}
+.tod-moon {
+  display: none;
+}
+[data-tod="night"] .tod-moon {
+  display: block;
+}
+
+/* Third Impact: the whole page goes soft and orange behind the LCL */
+#root {
+  transition: filter 1.8s ease;
+}
+html.instrumentality #root {
+  filter: blur(5px) saturate(2.2) sepia(0.5) hue-rotate(-12deg);
 }
 
 @media (prefers-reduced-motion: reduce) {

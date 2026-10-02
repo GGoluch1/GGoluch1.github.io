@@ -14,3 +14,10 @@ export function initAnalytics() {
   script.dataset.goatcounter = `https://${code}.goatcounter.com/count`;
   document.head.appendChild(script);
 }
+
+// Records a custom event (easter eggs, ID cards). A no-op wherever
+// GoatCounter isn't loaded, including localhost.
+export function track(path, title = path) {
+  if (typeof window === "undefined") return;
+  window.goatcounter?.count?.({ path, title, event: true });
+}
