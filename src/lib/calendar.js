@@ -8,6 +8,7 @@ const ordinal = (n) => {
   return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
 };
 
+// prettier-ignore
 export const EVENTS = {
   "03-08": { jp: "シン・エヴァンゲリオン劇場版 公開記念日", en: "EVANGELION 3.0+1.0 PREMIERED MARCH 8, 2021", year: 2021 },
   "03-30": { jp: "綾波レイ 誕生日", en: "HAPPY BIRTHDAY, REI AYANAMI", unit: "00" },

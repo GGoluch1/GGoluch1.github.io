@@ -1,5 +1,6 @@
 import { site } from "../data/site";
 import { socials } from "../data/socials";
+import { emailAddress } from "../lib/email";
 import { openUi } from "../lib/ui";
 import Reveal from "./Reveal";
 import SDat from "./SDat";
@@ -12,7 +13,7 @@ function ChannelRow({ code, name, detail, action, hoverAction, arrow = "▸", ..
     <Tag
       {...(Tag === "button" ? { type: "button" } : {})}
       {...linkProps}
-      className="wipe-fill group flex w-full items-center gap-4 px-3 py-3 text-left transition-colors duration-300 hover:text-void focus-visible:text-void"
+      className="group wipe-fill flex w-full items-center gap-4 px-3 py-3 text-left transition-colors duration-300 hover:text-void focus-visible:text-void"
     >
       <span className="text-xs text-magi/80 transition-colors group-hover:text-void">{code}</span>
       <span className="font-title text-lg font-black text-paper transition duration-300 group-hover:translate-x-1 group-hover:text-void">
@@ -30,7 +31,8 @@ function ChannelRow({ code, name, detail, action, hoverAction, arrow = "▸", ..
 }
 
 export default function Links() {
-  const channels = socials.length + (site.resume ? 1 : 0);
+  const email = emailAddress();
+  const channels = socials.length + (site.resume ? 1 : 0) + (email ? 1 : 0);
 
   return (
     <section id="comms" tabIndex={-1} className="scroll-mt-14 outline-none">
@@ -67,6 +69,7 @@ export default function Links() {
                       href={s.url}
                       target="_blank"
                       rel="noreferrer"
+                      data-print-url
                       data-goatcounter-click={`social-${s.name.toLowerCase()}`}
                       code={`CH-${String(i + 1).padStart(2, "0")}`}
                       name={s.name}
@@ -77,8 +80,23 @@ export default function Links() {
                   </Reveal>
                 </li>
               ))}
-              <li>
-                <Reveal variant="wipe" delay={240 + socials.length * 90}>
+              {email && (
+                <li>
+                  <Reveal variant="wipe" delay={240 + socials.length * 90}>
+                    <ChannelRow
+                      href={`mailto:${email}`}
+                      data-goatcounter-click="email"
+                      code={`CH-${String(socials.length + 1).padStart(2, "0")}`}
+                      name="EMAIL"
+                      detail={email}
+                      action="TRANSMIT"
+                      hoverAction="TRANSMITTING"
+                    />
+                  </Reveal>
+                </li>
+              )}
+              <li className="print:hidden">
+                <Reveal variant="wipe" delay={240 + (socials.length + 1) * 90}>
                   <ChannelRow
                     onClick={() => openUi("idcard")}
                     code="REG-00"
@@ -92,7 +110,7 @@ export default function Links() {
             </ul>
           </div>
         </Reveal>
-        <Reveal delay={200} className="mt-8">
+        <Reveal delay={200} className="mt-8 print:hidden">
           <SDat />
         </Reveal>
       </div>

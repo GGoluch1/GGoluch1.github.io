@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { useRemote } from "../hooks/useRemote";
 import { find } from "../lib/eggs";
 import { fetchAngelCount } from "../lib/remote";
 import { setSound, useSound } from "../lib/sound";
 import { timeOfDay } from "../lib/tod";
-import { AsukaStamp } from "./eggs/Captions";
 import Umbilical from "./Umbilical";
+
+// Seal 5's "Anta baka?!" only loads when someone knocks five times.
+const AsukaStamp = lazy(() => import("./eggs/Captions").then((m) => ({ default: m.AsukaStamp })));
 
 const links = [
   { id: "magi", label: "MAGI" },
@@ -12,23 +15,33 @@ const links = [
   { id: "comms", label: "COMMS" },
 ];
 
-export default function Nav() {
+// The live clock ticks every second, so it re-renders on its own instead of
+// taking the whole header with it.
+function Clock() {
   const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <span className="text-magi/80 tabular-nums" title={`Tokyo-3 // ${timeOfDay(now)}`}>
+      {now.toLocaleTimeString("en-GB", { hour12: false })}
+    </span>
+  );
+}
+
+export default function Nav() {
   const [active, setActive] = useState("magi");
   const [tucked, setTucked] = useState(false); // phones: header slides away while scrolling down
   const barRef = useRef(null);
   const headerRef = useRef(null);
   const soundOn = useSound();
-  const [angels, setAngels] = useState(null);
+  // GoatCounter's visitor total, as "Angels repelled".
+  const angels = useRemote(fetchAngelCount, "angels");
   const [asuka, setAsuka] = useState(false);
   const knocks = useRef([]);
-
-  // GoatCounter's visitor total, as "Angels repelled".
-  useEffect(() => {
-    fetchAngelCount()
-      .then(setAngels)
-      .catch(() => {});
-  }, []);
 
   // Seal 5: knock on NERV's logo five times in quick succession.
   const knock = () => {
@@ -40,12 +53,6 @@ export default function Nav() {
       find("asuka");
     }
   };
-
-  // Live clock
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
 
   // Highlight whichever section is in the middle of the screen
   useEffect(() => {
@@ -83,19 +90,20 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const time = now.toLocaleTimeString("en-GB", { hour12: false });
-
   return (
     <header
       ref={headerRef}
       onFocus={() => setTucked(false)}
-      className={`sticky top-0 z-40 border-b-2 border-magi bg-void/90 backdrop-blur transition-transform duration-300 ${
+      className={`sticky top-0 z-40 border-b-2 border-magi bg-void/90 backdrop-blur transition-transform duration-300 print:hidden ${
         tucked ? "max-md:-translate-y-full" : ""
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:gap-3">
-        <a href="#magi" onClick={knock} className="group relative flex items-baseline gap-2 before:absolute before:-inset-y-2.5 before:inset-x-0">
-
+        <a
+          href="#magi"
+          onClick={knock}
+          className="group relative flex items-baseline gap-2 before:absolute before:inset-x-0 before:-inset-y-2.5"
+        >
           <span className="font-title text-2xl font-black tracking-tight text-nerv transition group-hover:animate-glitch">
             NERV
           </span>
@@ -114,7 +122,7 @@ export default function Nav() {
                 aria-current={isActive ? "true" : undefined}
                 aria-keyshortcuts={String(i + 1)}
                 title={`${link.label} (press ${i + 1})`}
-                className={`relative px-1.5 py-1 transition-colors before:absolute before:-inset-y-2.5 before:inset-x-0 after:absolute after:inset-x-1.5 after:bottom-0 sm:px-2 sm:after:inset-x-2 after:h-0.5 after:origin-left after:bg-magi after:transition-transform after:duration-300 hover:text-paper hover:after:scale-x-100 ${
+                className={`relative px-1.5 py-1 transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 after:absolute after:inset-x-1.5 after:bottom-0 after:h-0.5 after:origin-left after:bg-magi after:transition-transform after:duration-300 hover:text-paper hover:after:scale-x-100 sm:px-2 sm:after:inset-x-2 ${
                   isActive ? "text-paper after:scale-x-100" : "after:scale-x-0"
                 }`}
               >
@@ -129,9 +137,7 @@ export default function Nav() {
           <div className="hidden items-center gap-2 md:flex" aria-hidden="true">
             <span className="size-2 animate-blink bg-sync" />
             <span className="text-sync">ONLINE</span>
-            <span className="tabular-nums text-magi/80" title={`Tokyo-3 // ${timeOfDay(now)}`}>
-              {time}
-            </span>
+            <Clock />
             {angels && (
               <span className="hidden text-magi/80 lg:inline" title="Visitors so far">
                 · {angels} ANGELS REPELLED
@@ -144,7 +150,7 @@ export default function Nav() {
             onClick={() => setSound(!soundOn)}
             aria-pressed={soundOn}
             title="Interface sounds"
-            className="relative flex items-center gap-1.5 border border-magi/50 px-2 py-1 transition before:absolute before:-inset-y-2.5 before:-inset-x-1 hover:border-magi hover:bg-magi/10 active:scale-95"
+            className="relative flex items-center gap-1.5 border border-magi/50 px-2 py-1 transition before:absolute before:-inset-x-1 before:-inset-y-2.5 hover:border-magi hover:bg-magi/10 active:scale-95"
           >
             <span className="flex h-3 items-end gap-0.5" aria-hidden="true">
               {[0.45, 1, 0.7].map((h, i) => (
@@ -163,7 +169,11 @@ export default function Nav() {
         </div>
       </div>
 
-      {asuka && <AsukaStamp onDone={() => setAsuka(false)} />}
+      {asuka && (
+        <Suspense fallback={null}>
+          <AsukaStamp onDone={() => setAsuka(false)} />
+        </Suspense>
+      )}
 
       {/* Scroll progress */}
       <div

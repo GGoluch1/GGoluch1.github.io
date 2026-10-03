@@ -2,6 +2,7 @@ import { Suspense, lazy, useCallback, useEffect, useLayoutEffect, useState } fro
 import AlertBar from "./components/AlertBar";
 import BootScreen from "./components/BootScreen";
 import CaseFiles from "./components/CaseFiles";
+import Berserk from "./components/eggs/Berserk";
 import Monolith from "./components/eggs/Monolith";
 import Rei from "./components/eggs/Rei";
 import Footer from "./components/Footer";
@@ -10,9 +11,11 @@ import ATField from "./components/ATField";
 import Isolation from "./components/Isolation";
 import Links from "./components/Links";
 import Nav from "./components/Nav";
+import { BOOTED_KEY, VISITED_KEY } from "./lib/boot";
 import { isUnlocked, useSeele } from "./lib/eggs";
 import { SECTIONS, goTo } from "./lib/navigate";
 import { sfx } from "./lib/sound";
+import { local, session } from "./lib/storage";
 import { dialogOpen, onUi } from "./lib/ui";
 
 // Loaded on demand, so first-time visitors don't download them up front.
@@ -21,21 +24,14 @@ const Terminal = lazy(() => import("./components/Terminal"));
 const IdCard = lazy(() => import("./components/IdCard"));
 const Dogma = lazy(() => import("./components/dogma/Dogma"));
 
-const SESSION_KEY = "magi-booted"; // booted in this tab already
-const VISITED_KEY = "magi-visited"; // has ever seen the full boot
-
 // "full" for first-time visitors, "fast" for returning ones,
 // "none" when it already played in this tab. Add ?boot to the URL to force "full".
 // Visitors who prefer reduced motion still get the boot, just without movement.
 function bootMode() {
   if (typeof window === "undefined") return "full"; // build-time prerender
   if (new URLSearchParams(window.location.search).has("boot")) return "full";
-  try {
-    if (sessionStorage.getItem(SESSION_KEY) === "1") return "none";
-    if (localStorage.getItem(VISITED_KEY) === "1") return "fast";
-  } catch {
-    // storage blocked: fall through to the full boot
-  }
+  if (session.get(BOOTED_KEY) === "1") return "none";
+  if (local.get(VISITED_KEY) === "1") return "fast";
   return "full";
 }
 
@@ -52,20 +48,21 @@ export default function App() {
   }, []);
 
   const finishBoot = useCallback(() => {
-    try {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      localStorage.setItem(VISITED_KEY, "1");
-    } catch {
-      // storage blocked: boot will just replay next load
-    }
+    session.set(BOOTED_KEY, "1");
+    local.set(VISITED_KEY, "1");
     setBooted(true);
   }, []);
 
   // A boot sequence always lands on the top section. Without this, a leftover
   // #files / #comms in the URL or the browser's scroll restoration on reload
   // would leave the page mid-way down when the boot screen clears.
+  // Without a boot (already booted in this tab, e.g. coming back from an
+  // incident report to /#files), a #section in the URL is honored instead.
   useLayoutEffect(() => {
-    if (mode === "none") return;
+    if (mode === "none") {
+      if (location.hash) goTo(location.hash.slice(1), { instant: true });
+      return;
+    }
     history.scrollRestoration = "manual";
     if (location.hash) history.replaceState(null, "", location.pathname + location.search);
     window.scrollTo(0, 0);
@@ -140,6 +137,7 @@ export default function App() {
       )}
 
       <Monolith />
+      <Berserk />
       <Isolation />
       <ATField />
       {booted && <Rei />}
@@ -149,7 +147,7 @@ export default function App() {
       </Suspense>
 
       {/* CRT scanline overlay across the whole page */}
-      <div className="crt pointer-events-none fixed inset-0 z-[70]" aria-hidden="true" />
+      <div className="pointer-events-none fixed inset-0 z-[70] crt print:hidden" aria-hidden="true" />
     </>
   );
 }

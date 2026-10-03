@@ -3,6 +3,7 @@ import { find } from "../../lib/eggs";
 import { sfx } from "../../lib/sound";
 import { useHold } from "../../hooks/useHold";
 import { useLatest } from "../../hooks/useLatest";
+import Lcl from "../Lcl";
 import Modal from "../Modal";
 import Overlay from "../Overlay";
 
@@ -46,7 +47,7 @@ function Offer({ onLeave, onAccept }) {
             type="button"
             onClick={onAccept}
             data-autofocus
-            className="bg-magi px-4 py-2 text-sm font-bold tracking-widest text-void shadow-[4px_4px_0_var(--color-nerv)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_var(--color-nerv)]"
+            className="btn-primary px-4 py-2 text-sm tracking-widest"
           >
             I MUSTN&apos;T RUN AWAY ▸
           </button>
@@ -92,7 +93,9 @@ function SyncTest({ onComplete }) {
       </div>
       <div className="p-6 sm:p-8">
         <p className="text-xs tracking-[0.3em] text-magi/80">SYNCHRONIZATION RATIO // シンクロ率</p>
-        <p className={`mt-2 font-title text-6xl font-black tabular-nums sm:text-7xl ${tone} ${ratio >= 300 ? "animate-shake" : ""}`}>
+        <p
+          className={`mt-2 font-title text-6xl font-black tabular-nums sm:text-7xl ${tone} ${ratio >= 300 ? "animate-shake" : ""}`}
+        >
           {shown.toFixed(1)}%
         </p>
         <p className={`mt-2 text-xs tracking-widest ${tone}`} aria-live="polite">
@@ -108,7 +111,7 @@ function SyncTest({ onComplete }) {
             <span key={m} className="absolute inset-y-0 w-px bg-paper/40" style={{ left: `${m / 4}%` }} />
           ))}
         </div>
-        <div className="mt-1 flex justify-between text-[10px] text-magi/60">
+        <div className="mt-1 flex justify-between text-[10px] text-magi/80">
           <span>0</span>
           <span>100</span>
           <span>200</span>
@@ -120,11 +123,11 @@ function SyncTest({ onComplete }) {
           type="button"
           {...hold}
           autoFocus
-          className="mt-8 w-full touch-none border-2 border-magi py-4 text-sm font-bold tracking-[0.3em] select-none transition-colors active:bg-magi active:text-void"
+          className="mt-8 w-full touch-none border-2 border-magi py-4 text-sm font-bold tracking-[0.3em] transition-colors select-none active:bg-magi active:text-void"
         >
           HOLD TO SYNCHRONIZE
         </button>
-        <p className="mt-2 text-center text-[10px] tracking-widest text-magi/60">RELEASE TO ABORT</p>
+        <p className="mt-2 text-center text-[10px] tracking-widest text-magi/80">RELEASE TO ABORT</p>
       </div>
     </>
   );
@@ -148,24 +151,7 @@ function LclFlood({ onDone }) {
   return (
     <Overlay>
       <div className="fixed inset-0 z-[65] overflow-hidden" aria-live="assertive">
-        <div
-          className={`absolute inset-0 animate-flood bg-[linear-gradient(to_top,#b34400,var(--color-magi)_55%,#ffb347)] transition-opacity duration-1000 ${
-            step === 2 ? "opacity-0" : "opacity-95"
-          }`}
-        >
-          {Array.from({ length: 16 }, (_, i) => (
-            <span
-              key={i}
-              className="absolute bottom-0 animate-bubble rounded-full border border-paper/60"
-              style={{
-                left: `${(i * 37) % 100}%`,
-                width: `${6 + ((i * 7) % 14)}px`,
-                height: `${6 + ((i * 7) % 14)}px`,
-                animationDelay: `${(i * 0.23) % 2.4}s`,
-              }}
-            />
-          ))}
-        </div>
+        <Lcl bubbles={16} className={`transition-opacity duration-1000 ${step === 2 ? "opacity-0" : "opacity-95"}`} />
         <div className="absolute inset-0 grid place-items-center p-6 text-center">
           {step === 0 && (
             <p key="a" className="animate-fade-in font-title text-3xl font-black text-void sm:text-5xl">

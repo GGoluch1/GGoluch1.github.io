@@ -42,7 +42,7 @@ export default function Monolith() {
           <p className="mt-3 text-sm leading-relaxed text-paper/90">{current.line}</p>
           <div className="mt-4 flex items-center justify-between">
             <SeeleEyes found={seele.found} />
-            <span className="text-[10px] tracking-widest text-nerv/80">{sealCount(seele)}/7</span>
+            <span className="text-[10px] tracking-widest text-nerv">{sealCount(seele)}/7</span>
           </div>
           <p className="mt-3 text-[10px] tracking-[0.5em] text-nerv">SOUND ONLY</p>
         </div>

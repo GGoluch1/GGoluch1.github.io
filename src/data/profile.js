@@ -1,10 +1,15 @@
 // Your personnel file. Everything the hero and footer display lives here.
 
+// Pilots in Eva are "Children", picked by the Marduk Institute.
+const child = "SIXTH CHILD";
+
 export const profile = {
   firstName: "GABRIEL",
   lastName: "GOLUCH",
-  // Pilots in Eva are "Children", picked by the Marduk Institute.
-  designation: "SIXTH CHILD // MARDUK INSTITUTE SELECTION",
+  // What the footer motto calls you: "GABE'S IN HIS HEAVEN."
+  nickname: "GABE",
+  child,
+  designation: `${child} // MARDUK INSTITUTE SELECTION`,
   // Shinji's line from the first episode, before he gets in the robot.
   tagline: "I mustn't run away. I mustn't run away. I mustn't run away.",
 

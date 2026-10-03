@@ -2,6 +2,7 @@ import { projects } from "../data/projects";
 import Briefing from "./Briefing";
 import CaseFileCard from "./CaseFileCard";
 import Reveal from "./Reveal";
+import ServiceRecord from "./ServiceRecord";
 import TitleCard from "./TitleCard";
 
 export default function CaseFiles() {
@@ -12,7 +13,8 @@ export default function CaseFiles() {
         <Briefing />
         <Reveal variant="wipe">
           <p className="mb-8 text-sm text-magi/80">
-            &gt; QUERY CASE_FILES // {projects.length} RECORDS FOUND // HOVER OR TAP TO DECLASSIFY
+            &gt; QUERY CASE_FILES // {projects.length} {projects.length === 1 ? "RECORD" : "RECORDS"} FOUND
+            <span className="print:hidden"> // HOVER OR TAP TO DECLASSIFY</span>
           </p>
         </Reveal>
         <div className="grid gap-x-6 gap-y-14 pt-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -22,6 +24,7 @@ export default function CaseFiles() {
             </Reveal>
           ))}
         </div>
+        <ServiceRecord />
       </div>
     </section>
   );

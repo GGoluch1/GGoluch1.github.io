@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 
 // Returns [ref, inView]. inView flips to true the first time the element
 // scrolls into view and stays true, so entrance animations only play once.
-export function useInView(threshold = 0.15) {
+// With once: false it also turns back off when the element leaves the screen.
+export function useInView(threshold = 0.15, { once = true } = {}) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
 
@@ -11,7 +12,8 @@ export function useInView(threshold = 0.15) {
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (!once) setInView(entry.isIntersecting);
+        else if (entry.isIntersecting) {
           setInView(true);
           io.disconnect();
         }
@@ -20,7 +22,7 @@ export function useInView(threshold = 0.15) {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [threshold]);
+  }, [threshold, once]);
 
   return [ref, inView];
 }

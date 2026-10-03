@@ -20,7 +20,11 @@ export default function SeeleEyes({ found, className = "" }) {
   return (
     <div className={`flex gap-1.5 ${className}`} aria-hidden="true">
       {SEALS.map((s) => (
-        <Eye key={s.id} lit={found.has(s.id)} className={found.has(s.id) ? "drop-shadow-[0_0_4px_var(--color-nerv)]" : ""} />
+        <Eye
+          key={s.id}
+          lit={found.has(s.id)}
+          className={found.has(s.id) ? "drop-shadow-[0_0_4px_var(--color-nerv)]" : ""}
+        />
       ))}
     </div>
   );

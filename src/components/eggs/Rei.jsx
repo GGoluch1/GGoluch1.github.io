@@ -36,10 +36,13 @@ export default function Rei() {
 
   useEffect(() => {
     if (!shown) return;
-    const t = setTimeout(() => {
-      setShown(false);
-      setCaught(false);
-    }, caught ? 2500 : SHOW_MS);
+    const t = setTimeout(
+      () => {
+        setShown(false);
+        setCaught(false);
+      },
+      caught ? 2500 : SHOW_MS,
+    );
     return () => clearTimeout(t);
   }, [shown, caught]);
 

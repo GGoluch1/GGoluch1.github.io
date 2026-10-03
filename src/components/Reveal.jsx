@@ -15,6 +15,7 @@ const SHOWN = {
 };
 
 // Wraps content so it animates in when scrolled into view.
+// data-reveal lets print and no-JavaScript styles show it regardless.
 // The outer div is what's observed and the inner one is what animates:
 // Chrome's IntersectionObserver counts an element's own clip-path, so a
 // fully clipped "wipe" element would never report itself as visible.
@@ -24,6 +25,7 @@ export default function Reveal({ variant = "up", delay = 0, className = "", chil
   return (
     <div ref={ref} className={className}>
       <div
+        data-reveal
         style={{ transitionDelay: `${delay}ms` }}
         className={`h-full transition-[opacity,translate,clip-path] duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${
           inView ? SHOWN[variant] : HIDDEN[variant]

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { track } from "../lib/analytics";
+import { themeColors, useUnit } from "../lib/theme";
 import Modal from "./Modal";
 
 // NERV personnel card generator. Everything is drawn on a <canvas> in the
-// visitor's browser; their photo never leaves their device.
+// visitor's browser; their photo never leaves their device. The card takes
+// the colors of the Eva unit theme that's picked.
 
 const W = 1012;
 const H = 638;
@@ -12,10 +14,15 @@ const MONO = '"Share Tech Mono", ui-monospace, monospace';
 const C = {
   void: "#050407",
   panel: "#0c0a0e",
-  magi: "#ff8a1f",
-  nerv: "#ee1c33",
   paper: "#f4efe6",
 };
+
+// The theme's colors, plus a see-through version of the accent: tint(0.7).
+function palette({ magi, nerv }) {
+  const hex = /^#([0-9a-f]{6})$/i.exec(magi)?.[1] ?? "ff8a1f";
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  return { magi: `#${hex}`, nerv, tint: (a) => `rgb(${r} ${g} ${b} / ${a})` };
+}
 
 const ORDINALS = ["SEVENTH", "EIGHTH", "NINTH", "TENTH", "ELEVENTH", "TWELFTH"];
 
@@ -45,7 +52,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function drawPhoto(ctx, photo, x, y, w, h) {
+function drawPhoto(ctx, k, photo, x, y, w, h) {
   ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
@@ -61,18 +68,18 @@ function drawPhoto(ctx, photo, x, y, w, h) {
     ctx.drawImage(photo, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
     ctx.filter = "none";
     ctx.globalCompositeOperation = "multiply";
-    ctx.fillStyle = "rgb(255 138 31 / 0.55)";
+    ctx.fillStyle = k.tint(0.55);
     ctx.fillRect(x, y, w, h);
     ctx.globalCompositeOperation = "source-over";
   } else {
-    ctx.fillStyle = "rgb(255 138 31 / 0.2)";
+    ctx.fillStyle = k.tint(0.2);
     ctx.beginPath();
     ctx.arc(x + w / 2, y + 125, 56, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
     ctx.ellipse(x + w / 2, y + h + 30, 115, 130, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "rgb(255 138 31 / 0.6)";
+    ctx.fillStyle = k.tint(0.6);
     ctx.font = `16px ${MONO}`;
     ctx.textAlign = "center";
     ctx.fillText("NO IMAGE // 写真なし", x + w / 2, y + 26);
@@ -83,14 +90,14 @@ function drawPhoto(ctx, photo, x, y, w, h) {
   for (let sy = y; sy < y + h; sy += 4) ctx.fillRect(x, sy, w, 1);
   ctx.restore();
 
-  ctx.strokeStyle = C.magi;
+  ctx.strokeStyle = k.magi;
   ctx.lineWidth = 3;
   ctx.strokeRect(x, y, w, h);
 }
 
-function field(ctx, label, value, x, y, size = 26) {
+function field(ctx, k, label, value, x, y, size = 26) {
   ctx.textAlign = "left";
-  ctx.fillStyle = "rgb(255 138 31 / 0.7)";
+  ctx.fillStyle = k.tint(0.7);
   ctx.font = `14px ${MONO}`;
   ctx.fillText(label, x, y);
   ctx.fillStyle = C.paper;
@@ -98,7 +105,8 @@ function field(ctx, label, value, x, y, size = 26) {
   ctx.fillText(value, x, y + size + 6);
 }
 
-function drawCard(ctx, { name, role, photo }) {
+function drawCard(ctx, { name, role, photo, colors }) {
+  const k = palette(colors);
   const seed = hash(`${name}|${role}`);
   const r = ROLES[role];
   const designation = role === "pilot" ? `THE ${ORDINALS[seed % ORDINALS.length]} CHILD` : r.label;
@@ -112,7 +120,7 @@ function drawCard(ctx, { name, role, photo }) {
 
   ctx.fillStyle = C.panel;
   ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = "rgb(255 138 31 / 0.05)";
+  ctx.strokeStyle = k.tint(0.05);
   ctx.lineWidth = 1;
   for (let gx = 0; gx < W; gx += 32) {
     ctx.beginPath();
@@ -122,7 +130,7 @@ function drawCard(ctx, { name, role, photo }) {
   }
 
   // Header
-  ctx.fillStyle = C.nerv;
+  ctx.fillStyle = k.nerv;
   ctx.fillRect(0, 0, W, 96);
   ctx.fillStyle = C.void;
   ctx.textBaseline = "middle";
@@ -136,12 +144,12 @@ function drawCard(ctx, { name, role, photo }) {
   ctx.fillText("PERSONNEL IDENTIFICATION // 職員証", W - 36, 68);
   ctx.textBaseline = "alphabetic";
 
-  drawPhoto(ctx, photo, 36, 128, 260, 330);
+  drawPhoto(ctx, k, photo, 36, 128, 260, 330);
 
   // Name, shrunk to fit
   const x = 336;
   ctx.textAlign = "left";
-  ctx.fillStyle = "rgb(255 138 31 / 0.7)";
+  ctx.fillStyle = k.tint(0.7);
   ctx.font = `14px ${MONO}`;
   ctx.fillText("NAME // 氏名", x, 148);
   let size = 54;
@@ -153,12 +161,12 @@ function drawCard(ctx, { name, role, photo }) {
   ctx.fillStyle = C.paper;
   ctx.fillText(shown, x, 206);
 
-  field(ctx, "DESIGNATION // 所属", designation, x, 250);
-  field(ctx, "DIVISION", r.unit, x, 318, 22);
-  field(ctx, "CLEARANCE // 保安レベル", r.clearance, x, 384, 22);
-  field(ctx, "ID No.", `NV-${String(seed % 9000000 + 1000000)}`, x + 330, 384, 22);
-  field(ctx, "ISSUED", issued, x, 448, 22);
-  field(ctx, "VALID UNTIL", "THIRD IMPACT", x + 330, 448, 22);
+  field(ctx, k, "DESIGNATION // 所属", designation, x, 250);
+  field(ctx, k, "DIVISION", r.unit, x, 318, 22);
+  field(ctx, k, "CLEARANCE // 保安レベル", r.clearance, x, 384, 22);
+  field(ctx, k, "ID No.", `NV-${String((seed % 9000000) + 1000000)}`, x + 330, 384, 22);
+  field(ctx, k, "ISSUED", issued, x, 448, 22);
+  field(ctx, k, "VALID UNTIL", "THIRD IMPACT", x + 330, 448, 22);
 
   // Barcode
   let bits = seed;
@@ -171,7 +179,7 @@ function drawCard(ctx, { name, role, photo }) {
     bx += bw + 2;
   }
 
-  ctx.fillStyle = "rgb(255 138 31 / 0.7)";
+  ctx.fillStyle = k.tint(0.7);
   ctx.font = `14px ${MONO}`;
   ctx.fillText("GOD'S IN HIS HEAVEN. ALL'S RIGHT WITH THE WORLD.", 36, 560);
 
@@ -182,7 +190,7 @@ function drawCard(ctx, { name, role, photo }) {
   ctx.clip();
   ctx.fillStyle = C.void;
   ctx.fillRect(0, H - 40, W, 40);
-  ctx.fillStyle = C.magi;
+  ctx.fillStyle = k.magi;
   for (let hx = -40; hx < W + 40; hx += 36) {
     ctx.beginPath();
     ctx.moveTo(hx, H);
@@ -194,7 +202,7 @@ function drawCard(ctx, { name, role, photo }) {
   ctx.restore();
   ctx.restore();
 
-  ctx.strokeStyle = C.magi;
+  ctx.strokeStyle = k.magi;
   ctx.lineWidth = 4;
   roundRect(ctx, 2, 2, W - 4, H - 4, 26);
   ctx.stroke();
@@ -206,6 +214,15 @@ export default function IdCard({ onClose }) {
   const [role, setRole] = useState("pilot");
   const [photo, setPhoto] = useState(null);
   const [fontsReady, setFontsReady] = useState(false);
+  const unit = useUnit();
+  // Phones (and some desktops) can hand the PNG straight to another app.
+  const [canShare] = useState(() => {
+    try {
+      return Boolean(navigator.canShare?.({ files: [new File([""], "card.png", { type: "image/png" })] }));
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     Promise.all([document.fonts.load(`900 40px ${TITLE}`), document.fonts.load(`20px ${MONO}`)])
@@ -215,8 +232,8 @@ export default function IdCard({ onClose }) {
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) drawCard(ctx, { name, role, photo });
-  }, [name, role, photo, fontsReady]);
+    if (ctx) drawCard(ctx, { name, role, photo, colors: themeColors() });
+  }, [name, role, photo, fontsReady, unit]);
 
   const onPhoto = (e) => {
     const file = e.target.files?.[0];
@@ -230,16 +247,29 @@ export default function IdCard({ onClose }) {
     reader.readAsDataURL(file);
   };
 
+  const fileName = `nerv-id-${(name.trim() || "personnel").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+
   const download = () => {
     canvasRef.current.toBlob((blob) => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `nerv-id-${(name.trim() || "personnel").toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
+      a.download = fileName;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       track("id-card", "NERV ID card issued");
+    });
+  };
+
+  const share = () => {
+    canvasRef.current.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], fileName, { type: "image/png" });
+      navigator
+        .share({ files: [file], title: "NERV ID card" })
+        .then(() => track("id-card-share", "NERV ID card shared"))
+        .catch(() => {}); // cancelled
     });
   };
 
@@ -257,7 +287,14 @@ export default function IdCard({ onClose }) {
         <div className="space-y-4 text-sm">
           <label className="block">
             <span className="mb-1 block text-xs tracking-[0.3em] text-magi/80">NAME // 氏名</span>
-            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} data-autofocus placeholder="SHINJI IKARI" className={input} />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={24}
+              data-autofocus
+              placeholder="SHINJI IKARI"
+              className={input}
+            />
           </label>
           <label className="block">
             <span className="mb-1 block text-xs tracking-[0.3em] text-magi/80">ASSIGNMENT</span>
@@ -275,20 +312,33 @@ export default function IdCard({ onClose }) {
               type="file"
               accept="image/*"
               onChange={onPhoto}
-              className="w-full text-xs text-paper/80 file:mr-3 file:border-2 file:border-magi file:bg-transparent file:px-3 file:py-1.5 file:text-magi file:tracking-widest hover:file:bg-magi hover:file:text-void"
+              className="w-full text-xs text-paper/80 file:mr-3 file:border-2 file:border-magi file:bg-transparent file:px-3 file:py-1.5 file:tracking-widest file:text-magi hover:file:bg-magi hover:file:text-void"
             />
-            <span className="mt-1 block text-[10px] text-magi/60">STAYS ON YOUR DEVICE. NOTHING IS UPLOADED.</span>
+            <span className="mt-1 block text-[10px] text-magi/80">STAYS ON YOUR DEVICE. NOTHING IS UPLOADED.</span>
           </label>
         </div>
         <div>
-          <canvas ref={canvasRef} width={W} height={H} className="h-auto w-full" aria-label="Preview of your NERV ID card" />
-          <button
-            type="button"
-            onClick={download}
-            className="mt-4 w-full bg-magi py-3 font-bold tracking-[0.3em] text-void shadow-[4px_4px_0_var(--color-nerv)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_var(--color-nerv)]"
-          >
-            ISSUE CARD ▾
-          </button>
+          <canvas
+            ref={canvasRef}
+            width={W}
+            height={H}
+            className="h-auto w-full"
+            aria-label="Preview of your NERV ID card"
+          />
+          <div className="mt-4 flex gap-3">
+            <button type="button" onClick={download} className="flex-1 btn-primary py-3 tracking-[0.3em]">
+              ISSUE CARD ▾
+            </button>
+            {canShare && (
+              <button
+                type="button"
+                onClick={share}
+                className="border-2 border-magi px-4 py-3 text-sm font-bold tracking-[0.3em] transition-colors hover:bg-magi hover:text-void"
+              >
+                SHARE ▸
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Modal>

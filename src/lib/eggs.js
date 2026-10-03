@@ -1,12 +1,14 @@
 // The easter-egg hunt. Seven seals, one per eye on SEELE's mask; breaking all
-// seven opens Heaven's Door to Terminal Dogma below the footer. Pen Pen and
-// the S-DAT's track 27 are bonuses that aren't part of the scenario.
+// seven opens Heaven's Door to Terminal Dogma below the footer. Pen Pen, the
+// S-DAT's track 27 and Berserk mode are bonuses that aren't part of the scenario.
+// Pulling the Lance plays the TV ending first, then End of Evangelion.
 //
 // Progress lives in this browser's localStorage.
 // Add ?seele to the URL to reset it (in dev, ?seele=all breaks every seal).
 
-import { useSyncExternalStore } from "react";
 import { track } from "./analytics";
+import { local } from "./storage";
+import { createStore, useStore } from "./store";
 
 export const SEALS = [
   {
@@ -66,14 +68,21 @@ export const BONUSES = [
     line: "Track 27. The tape finally moved on.",
     hint: "The S-DAT only knows two tracks. Hold on long enough and it might learn a third.",
   },
+  {
+    id: "berserk",
+    name: "BERSERK",
+    line: "Unit-01 has gone berserk. The pilot is not in control.",
+    hint: "Some codes are older than NERV. Up, up, down, down…",
+  },
 ];
 
 const KEY = "magi-seele";
-const EMPTY = { found: new Set(), ended: false };
-const listeners = new Set();
+// ended: saw the TV ending (episode 26). eoe: saw End of Evangelion.
+const EMPTY = { found: new Set(), ended: false, eoe: false };
 const announcers = new Set();
 
-let state = load();
+const store = createStore(load(), EMPTY);
+const state = () => store.get();
 
 function load() {
   if (typeof window === "undefined") return EMPTY;
@@ -84,29 +93,24 @@ function load() {
       params.delete("seele");
       const query = params.toString() ? `?${params}` : "";
       history.replaceState(null, "", window.location.pathname + query + window.location.hash);
-      const next = all ? { found: new Set(SEALS.map((s) => s.id)), ended: false } : EMPTY;
+      const next = all ? { ...EMPTY, found: new Set(SEALS.map((s) => s.id)) } : EMPTY;
       save(next);
       return next;
     }
-    const raw = JSON.parse(localStorage.getItem(KEY) ?? "{}");
-    return { found: new Set(raw.found ?? []), ended: Boolean(raw.ended) };
+    const raw = JSON.parse(local.get(KEY) ?? "{}");
+    return { found: new Set(raw.found ?? []), ended: Boolean(raw.ended), eoe: Boolean(raw.eoe) };
   } catch {
     return EMPTY;
   }
 }
 
 function save(s) {
-  try {
-    localStorage.setItem(KEY, JSON.stringify({ found: [...s.found], ended: s.ended }));
-  } catch {
-    // storage blocked: progress lasts until the tab closes
-  }
+  local.set(KEY, JSON.stringify({ found: [...s.found], ended: s.ended, eoe: s.eoe }));
 }
 
 function update(next) {
-  state = next;
   save(next);
-  listeners.forEach((fn) => fn());
+  store.set(next);
 }
 
 function announce(message) {
@@ -115,28 +119,34 @@ function announce(message) {
 
 export const sealCount = (s) => SEALS.filter((seal) => s.found.has(seal.id)).length;
 export const isUnlocked = (s) => sealCount(s) === SEALS.length;
-export const hasFound = (id) => state.found.has(id);
 
 // Marks an egg as found. Returns false if it already was.
 export function find(id) {
-  if (state.found.has(id)) return false;
-  update({ ...state, found: new Set(state.found).add(id) });
+  if (state().found.has(id)) return false;
+  update({ ...state(), found: new Set(state().found).add(id) });
 
   const index = SEALS.findIndex((s) => s.id === id);
   const egg = index >= 0 ? SEALS[index] : BONUSES.find((b) => b.id === id);
   track(`egg-${id}`, `Easter egg: ${egg.name}`);
   announce({ key: id, number: index >= 0 ? String(index + 1).padStart(2, "0") : "00", line: egg.line });
 
-  if (index >= 0 && isUnlocked(state)) {
+  if (index >= 0 && isUnlocked(state())) {
     track("egg-all-seals", "Easter egg: all seven seals");
     announce({ key: "unlock", number: "全", line: "All seals are broken. Proceed to Terminal Dogma." });
   }
   return true;
 }
 
-export function endScenario() {
-  if (!state.ended) track("third-impact", "Easter egg: Third Impact");
-  update({ ...state, ended: true });
+// ending: "tv" (episode 26) or "eoe" (The End of Evangelion).
+export function endScenario(ending = "tv") {
+  const field = ending === "eoe" ? "eoe" : "ended";
+  if (!state()[field]) {
+    track(
+      ending === "eoe" ? "end-of-evangelion" : "third-impact",
+      `Easter egg: ${ending === "eoe" ? "End of Evangelion" : "Third Impact"}`,
+    );
+  }
+  update({ ...state(), [field]: true });
 }
 
 export function resetSeele() {
@@ -145,18 +155,11 @@ export function resetSeele() {
 
 // The next unbroken seal's hint, then the bonuses', then nothing.
 export function nextHint() {
-  const egg = [...SEALS, ...BONUSES].find((s) => !state.found.has(s.id));
+  const egg = [...SEALS, ...BONUSES].find((s) => !state().found.has(s.id));
   return egg?.hint ?? null;
 }
 
-function subscribe(fn) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
-}
-
-export function useSeele() {
-  return useSyncExternalStore(subscribe, () => state, () => EMPTY);
-}
+export const useSeele = () => useStore(store);
 
 // Monolith notifications for each newly found egg.
 export function onAnnounce(fn) {

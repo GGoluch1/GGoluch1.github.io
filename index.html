@@ -5,11 +5,16 @@
     <!-- Production builds get a Content-Security-Policy meta tag here (see vite.config.js). -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#050407" />
     <!-- Plain wording on purpose: this is what Google shows in search results. -->
     <title>Gabriel Goluch · Computer Engineering, University of Florida</title>
-    <meta name="description" content="Gabriel Goluch is a computer engineering student at the University of Florida. Projects, code, and links to GitHub, LinkedIn and X." />
+    <meta
+      name="description"
+      content="Gabriel Goluch is a computer engineering student at the University of Florida. Projects, code, and links to GitHub, LinkedIn and X."
+    />
     <meta name="author" content="Gabriel Goluch" />
     <link rel="canonical" href="https://gabrielgoluch.me/" />
 
@@ -18,7 +23,10 @@
     <meta property="og:site_name" content="Gabriel Goluch" />
     <meta property="og:url" content="https://gabrielgoluch.me/" />
     <meta property="og:title" content="Gabriel Goluch // NERV" />
-    <meta property="og:description" content="Computer engineering student at the University of Florida. Personal projects and links, served by the MAGI system." />
+    <meta
+      property="og:description"
+      content="Computer engineering student at the University of Florida. Personal projects and links, served by the MAGI system."
+    />
     <meta property="profile:first_name" content="Gabriel" />
     <meta property="profile:last_name" content="Goluch" />
     <meta property="og:image" content="https://gabrielgoluch.me/og-image.png" />
@@ -50,6 +58,12 @@
       media="print"
       data-async-font
     />
+    <!--
+      Without JavaScript the page is the prerendered HTML: this hides the boot
+      screen and shows everything that would otherwise animate in. It's a file
+      rather than an inline <style> so the CSP can stay strict.
+    -->
+    <noscript><link rel="stylesheet" href="/noscript.css" /></noscript>
   </head>
   <body>
     <div id="root"></div>

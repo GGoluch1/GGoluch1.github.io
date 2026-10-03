@@ -3,8 +3,9 @@
 // there are no audio files. Pressing play also puts the "earphones in":
 // the page is muffled until you stop (see Isolation.jsx).
 
-import { useSyncExternalStore } from "react";
+import { AIR, HALLELUJAH, JESU } from "./scores";
 import { getAudio, setMuted } from "./sound";
+import { createStore, useStore } from "./store";
 
 const SEMITONE = { C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5, "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11 };
 
@@ -14,19 +15,37 @@ function freq(name) {
   return 440 * 2 ** ((midi - 69) / 12);
 }
 
-// Each voice is an oscillator with an envelope; "cello" and "strings" run
+// Each voice is an oscillator with an envelope; the sawtooth voices run
 // through a lowpass filter to soften the raw waveform.
 const VOICES = {
   cello: { type: "sawtooth", vol: 0.035, attack: 0.03, filter: 1100 },
   strings: { type: "sawtooth", vol: 0.02, attack: 0.08, filter: 1800 },
+  violin: { type: "sawtooth", vol: 0.024, attack: 0.07, filter: 2400 },
+  choir: { type: "sawtooth", vol: 0.016, attack: 0.05, filter: 1500 },
   bass: { type: "triangle", vol: 0.06, attack: 0.02 },
   flute: { type: "triangle", vol: 0.04, attack: 0.02 },
+  inner: { type: "triangle", vol: 0.018, attack: 0.05 },
   piano: { type: "triangle", vol: 0.045, attack: 0.005, decay: true },
 };
 
 // Builds [time, note, duration, voice] events from a list of notes at a fixed step.
 function line(notes, step, voice, start = 0, hold = 1.1) {
   return notes.split(" ").map((n, i) => [start + i * step, n, step * hold, voice]);
+}
+
+// Builds events from "beat:note:beats" tokens (see scores.js), `beat` seconds per beat.
+function score(text, beat, voice) {
+  return text.split(" ").map((token) => {
+    const [at, note, beats] = token.split(":");
+    return [at * beat, note, beats * beat, voice];
+  });
+}
+
+// A piece from several scored parts: { part: voice }.
+function parts(source, beat, voices) {
+  const events = Object.entries(voices).flatMap(([part, voice]) => score(source[part], beat, voice));
+  const end = Math.max(...events.map(([at, , dur]) => at + dur));
+  return { events, length: end + 1.2 };
 }
 
 // Bach, Cello Suite No. 1 in G major: the prelude's opening bars.
@@ -44,6 +63,7 @@ function cello() {
 
 // Beethoven, Ode to Joy (the tune Kaworu hums). [note, beats]
 function ode() {
+  // prettier-ignore
   const tune = [
     ["E4", 1], ["E4", 1], ["F4", 1], ["G4", 1], ["G4", 1], ["F4", 1], ["E4", 1], ["D4", 1],
     ["C4", 1], ["C4", 1], ["D4", 1], ["E4", 1], ["E4", 1.5], ["D4", 0.5], ["D4", 2],
@@ -102,22 +122,30 @@ function sunrise() {
   return { events, length: chords.length * 8 * step + 1.5 };
 }
 
+// The classical pieces Evangelion itself uses: Air and Jesu, Joy in
+// The End of Evangelion, the Hallelujah chorus in episode 22.
+const air = () => parts(AIR, 1.2, { melody: "violin", inner: "inner", bass: "cello" });
+const jesu = () => parts(JESU, 0.55, { triplets: "flute", second: "inner", bass: "bass", chorale: "strings" });
+const hallelujah = () => parts(HALLELUJAH, 0.6, { soprano: "choir", alto: "choir", tenor: "choir", bass: "cello" });
+
 export const TAPE = [
   { title: "CELLO SUITE NO. 1 // PRELUDE", composer: "J.S. BACH", build: cello },
   { title: "ODE TO JOY", composer: "L.V. BEETHOVEN", build: ode },
   { title: "CANON IN D", composer: "J. PACHELBEL", build: canon },
+  { title: "AIR // ORCHESTRAL SUITE NO. 3", composer: "J.S. BACH", build: air },
+  { title: "JESU, JOY OF MAN'S DESIRING", composer: "J.S. BACH", build: jesu },
+  { title: "HALLELUJAH // MESSIAH", composer: "G.F. HANDEL", build: hallelujah },
 ];
 export const TRACK_27 = { title: "NEVER PLAYED BEFORE", composer: "UNKNOWN", build: sunrise };
 
-const listeners = new Set();
-let state = { playing: false, index: 0, special: false };
+const player = createStore({ playing: false, index: 0, special: false });
 let bus = null;
 let timer = 0;
 
 function emit(next) {
-  state = { ...state, ...next };
+  const state = { ...player.get(), ...next };
   setMuted(state.playing);
-  listeners.forEach((fn) => fn());
+  player.set(state);
 }
 
 function play(ac, piece) {
@@ -180,21 +208,13 @@ function start(index, special = false) {
 }
 
 export const sdat = {
-  play: () => start(state.index),
+  play: () => start(player.get().index),
   stop() {
     silence();
     emit({ playing: false, special: false });
   },
-  next: () => start((state.index + 1) % TAPE.length),
+  next: () => start((player.get().index + 1) % TAPE.length),
   track27: () => start(0, true),
 };
 
-function subscribe(fn) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
-}
-
-const SERVER = { playing: false, index: 0, special: false };
-export function useSdat() {
-  return useSyncExternalStore(subscribe, () => state, () => SERVER);
-}
+export const useSdat = () => useStore(player);

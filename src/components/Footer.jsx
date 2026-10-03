@@ -15,14 +15,15 @@ function SeeleTracker({ seele }) {
   const unlocked = isUnlocked(seele);
 
   return (
-    <div className="mt-8 flex flex-col items-center gap-2">
+    <div className="mt-8 flex flex-col items-center gap-2 print:hidden">
       <SeeleEyes found={seele.found} />
-      <p className="text-[10px] tracking-[0.3em] text-nerv/90">
+      <p className="text-[10px] tracking-[0.3em] text-nerv">
         SEELE // {sealCount(seele)} OF 7 SEALS BROKEN
         {BONUSES.filter((b) => seele.found.has(b.id))
           .map((b) => ` // + ${b.name}`)
           .join("")}
         {seele.ended ? " // おめでとう" : ""}
+        {seele.eoe ? " // 気持ち悪い" : ""}
       </p>
       {unlocked && (
         <a href="#dogma" className="mt-2 animate-blink text-xs tracking-[0.4em] text-nerv hover:text-paper">
@@ -37,8 +38,12 @@ function SeeleTracker({ seele }) {
 function UnitPicker() {
   const unit = useUnit();
   return (
-    <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[10px] tracking-[0.2em]" role="group" aria-label="Color theme">
-      <span className="w-full text-magi/70 sm:w-auto">COLORS //</span>
+    <div
+      className="mt-6 flex flex-wrap items-center justify-center gap-2 text-[10px] tracking-[0.2em] print:hidden"
+      role="group"
+      aria-label="Color theme"
+    >
+      <span className="w-full text-magi/80 sm:w-auto">COLORS //</span>
       {UNITS.map((u) => (
         <button
           key={u.id}
@@ -46,7 +51,7 @@ function UnitPicker() {
           onClick={() => setUnit(u.id)}
           aria-pressed={unit === u.id}
           className={`flex items-center gap-1.5 border px-2 py-1 transition-colors ${
-            unit === u.id ? "border-magi text-paper" : "border-magi/30 text-magi/70 hover:border-magi hover:text-magi"
+            unit === u.id ? "border-magi text-paper" : "border-magi/30 text-magi/80 hover:border-magi hover:text-magi"
           }`}
         >
           <span className="flex" aria-hidden="true">
@@ -82,9 +87,9 @@ export default function Footer() {
 
   return (
     <footer>
-      <div className="relative">
+      <div className="relative print:hidden">
         <PenPen />
-        <div className="hazard relative h-4" aria-hidden="true" />
+        <div className="relative h-4 hazard" aria-hidden="true" />
       </div>
       <div className="mx-auto max-w-6xl px-4 py-12 text-center">
         <Reveal variant="wipe">
@@ -94,7 +99,7 @@ export default function Footer() {
                 door ? "opacity-0" : ""
               }`}
             >
-              GABE&apos;S IN HIS HEAVEN.
+              {profile.nickname}&apos;S IN HIS HEAVEN.
               <br />
               ALL&apos;S RIGHT WITH THE WORLD.
             </p>
@@ -115,12 +120,12 @@ export default function Footer() {
           <button
             type="button"
             onClick={() => openUi("terminal")}
-            className="mt-6 border border-magi/50 px-3 py-1.5 text-xs tracking-[0.3em] text-magi/80 transition-colors hover:border-magi hover:text-magi"
+            className="mt-6 border border-magi/50 px-3 py-1.5 text-xs tracking-[0.3em] text-magi/80 transition-colors hover:border-magi hover:text-magi print:hidden"
           >
             &gt;_ MAGI TERMINAL
           </button>
           <UnitPicker />
-          <p className="mt-6 hidden text-xs tracking-widest text-magi/80 md:block" aria-hidden="true">
+          <p className="mt-6 hidden text-xs tracking-widest text-magi/80 md:block print:hidden" aria-hidden="true">
             KEYS // [1] MAGI · [2] FILES · [3] COMMS · [`] TERMINAL
           </p>
           <p className="mt-6 text-xs text-magi/80">

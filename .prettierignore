@@ -1,0 +1,5 @@
+dist
+dist-ssr
+public/vendor
+package-lock.json
+*.md

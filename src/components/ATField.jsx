@@ -6,7 +6,8 @@ import Overlay from "./Overlay";
 // space) and an A.T. Field ripples out from that point: concentric octagons.
 // Links, buttons, inputs and anything with a pointer cursor are left alone.
 
-const INTERACTIVE = "a, button, input, select, textarea, label, summary, canvas, dialog, [role='button'], [contenteditable]";
+const INTERACTIVE =
+  "a, button, input, select, textarea, label, summary, canvas, dialog, [role='button'], [contenteditable]";
 const LIFETIME = 900;
 
 // A regular octagon, flat side up, centred in a 100 x 100 box.
@@ -43,7 +44,12 @@ export default function ATField() {
     <Overlay>
       <div className="pointer-events-none fixed inset-0 z-[64] overflow-hidden" aria-hidden="true">
         {fields.map(({ id, x, y }) => (
-          <svg key={id} viewBox="0 0 100 100" className="absolute size-40 -translate-x-1/2 -translate-y-1/2" style={{ left: x, top: y }}>
+          <svg
+            key={id}
+            viewBox="0 0 100 100"
+            className="absolute size-40 -translate-x-1/2 -translate-y-1/2"
+            style={{ left: x, top: y }}
+          >
             {[0, 1, 2].map((i) => (
               <polygon
                 key={i}
@@ -52,7 +58,7 @@ export default function ATField() {
                 fillOpacity="0.06"
                 stroke="var(--color-magi)"
                 strokeWidth="2"
-                className="opacity-40 [transform-origin:center] [animation:at-field_0.7s_cubic-bezier(0.2,0.7,0.3,1)_both]"
+                className="[transform-origin:center] [animation:at-field_0.7s_cubic-bezier(0.2,0.7,0.3,1)_both] opacity-40"
                 style={{ animationDelay: `${i * 90}ms` }}
               />
             ))}

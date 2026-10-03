@@ -2,24 +2,16 @@
 // Everything is soft sine/triangle blips at low volume. Off by default;
 // the visitor's choice is remembered in localStorage.
 
-import { useSyncExternalStore } from "react";
+import { local } from "./storage";
+import { createStore, useStore } from "./store";
 
 const KEY = "magi-sound";
-const listeners = new Set();
 
-let enabled = readPref();
+const enabled = createStore(local.get(KEY) === "on", false); // off when prerendering
 let ctx = null;
 let unlocked = false; // browsers only allow audio after a user gesture
 let lastHover = 0;
 let muted = false; // S-DAT isolation mode and a dead battery silence the UI
-
-function readPref() {
-  try {
-    return localStorage.getItem(KEY) === "on";
-  } catch {
-    return false;
-  }
-}
 
 if (typeof window !== "undefined") {
   const unlock = () => {
@@ -42,9 +34,13 @@ function audio() {
   return ctx;
 }
 
+// The AudioContext, or null when sounds are off, muted, or not allowed yet.
+function live() {
+  return enabled.get() && !muted ? audio() : null;
+}
+
 function tone(freq, dur = 0.06, vol = 0.03, type = "sine", when = 0) {
-  if (!enabled || muted) return;
-  const ac = audio();
+  const ac = live();
   if (!ac) return;
 
   const t = ac.currentTime + when;
@@ -62,8 +58,7 @@ function tone(freq, dur = 0.06, vol = 0.03, type = "sine", when = 0) {
 
 // Pitch glide from one frequency to another.
 function slide(from, to, dur, vol, type = "sine", when = 0) {
-  if (!enabled || muted) return;
-  const ac = audio();
+  const ac = live();
   if (!ac) return;
 
   const t = ac.currentTime + when;
@@ -82,23 +77,27 @@ function slide(from, to, dur, vol, type = "sine", when = 0) {
 
 let noise = null;
 
-// A short burst of filtered white noise (claps, the positron beam).
-function burst(when, dur, vol, freq) {
-  if (!enabled || muted) return;
-  const ac = audio();
-  if (!ac) return;
-
+// One second of white noise, made once and reused.
+function noiseBuffer(ac) {
   if (!noise) {
     noise = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
     const data = noise.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   }
+  return noise;
+}
+
+// A short burst of filtered white noise (claps, the positron beam).
+function burst(when, dur, vol, freq, type = "bandpass") {
+  const ac = live();
+  if (!ac) return;
+
   const t = ac.currentTime + when;
   const src = ac.createBufferSource();
   const filter = ac.createBiquadFilter();
   const gain = ac.createGain();
-  src.buffer = noise;
-  filter.type = "bandpass";
+  src.buffer = noiseBuffer(ac);
+  filter.type = type;
   filter.frequency.value = freq;
   filter.Q.value = 0.9;
   gain.gain.setValueAtTime(0.0001, t);
@@ -111,6 +110,7 @@ function burst(when, dur, vol, freq) {
 
 // Beethoven's Ode to Joy, the tune Kaworu hums. [note, beats]
 const NOTE = { C: 261.63, D: 293.66, E: 329.63, F: 349.23, G: 392 };
+// prettier-ignore
 const ODE = [
   ["E", 1], ["E", 1], ["F", 1], ["G", 1], ["G", 1], ["F", 1], ["E", 1], ["D", 1],
   ["C", 1], ["C", 1], ["D", 1], ["E", 1], ["E", 1.5], ["D", 0.5], ["D", 2],
@@ -194,15 +194,25 @@ export const sfx = {
   },
   applause() {
     for (let i = 0; i < 160; i++) {
-      burst(Math.random() * 3.4, 0.05 + Math.random() * 0.05, 0.015 + Math.random() * 0.02, 1100 + Math.random() * 1900);
+      burst(
+        Math.random() * 3.4,
+        0.05 + Math.random() * 0.05,
+        0.015 + Math.random() * 0.02,
+        1100 + Math.random() * 1900,
+      );
     }
+  },
+  // Unit-01 goes berserk: a low, tearing roar.
+  roar() {
+    slide(150, 52, 1.5, 0.05, "sawtooth");
+    slide(158, 55, 1.5, 0.03, "sawtooth", 0.04);
+    burst(0, 1.3, 0.08, 420, "lowpass");
   },
 };
 
 // Low drone for Terminal Dogma. Returns a function that fades it out.
 export function startHum() {
-  if (!enabled || muted) return () => {};
-  const ac = audio();
+  const ac = live();
   if (!ac) return () => {};
 
   const gain = ac.createGain();
@@ -226,7 +236,43 @@ export function startHum() {
   };
 }
 
-export const soundOn = () => enabled;
+// Waves on the red sea after End of Evangelion: looping noise through a
+// lowpass filter, swelling and falling slowly. Returns a function that fades it out.
+export function startWaves() {
+  const ac = live();
+  if (!ac) return () => {};
+
+  const src = ac.createBufferSource();
+  src.buffer = noiseBuffer(ac);
+  src.loop = true;
+  const filter = ac.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 520;
+  const gain = ac.createGain();
+  gain.gain.setValueAtTime(0.0001, ac.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 3);
+  // A slow wobble on top of the volume: one wave every eight seconds or so.
+  const swell = ac.createOscillator();
+  const depth = ac.createGain();
+  swell.frequency.value = 0.12;
+  depth.gain.value = 0.035;
+  swell.connect(depth).connect(gain.gain);
+  src.connect(filter).connect(gain).connect(ac.destination);
+  src.start();
+  swell.start();
+
+  return () => {
+    const t = ac.currentTime;
+    gain.gain.cancelScheduledValues(t);
+    gain.gain.setValueAtTime(Math.max(gain.gain.value, 0.0001), t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+    depth.gain.setTargetAtTime(0, t, 0.2);
+    src.stop(t + 1.1);
+    swell.stop(t + 1.1);
+  };
+}
+
+export const soundOn = () => enabled.get();
 
 export function setMuted(on) {
   muted = on;
@@ -238,20 +284,8 @@ export function setMuted(on) {
 export const getAudio = () => audio();
 
 export function setSound(on) {
-  enabled = on;
-  try {
-    localStorage.setItem(KEY, on ? "on" : "off");
-  } catch {
-    // storage blocked: the setting just won't persist
-  }
-  listeners.forEach((fn) => fn());
+  local.set(KEY, on ? "on" : "off");
+  enabled.set(on);
 }
 
-function subscribe(fn) {
-  listeners.add(fn);
-  return () => listeners.delete(fn);
-}
-
-export function useSound() {
-  return useSyncExternalStore(subscribe, () => enabled, () => false); // off when prerendering
-}
+export const useSound = () => useStore(enabled);

@@ -1,12 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { profile } from "../data/profile";
 import { socials } from "../data/socials";
+import { emailAddress } from "../lib/email";
 import { find } from "../lib/eggs";
 import { sfx } from "../lib/sound";
 import { onUi } from "../lib/ui";
-import GendoDialog from "./eggs/GendoDialog";
 import Ramiel from "./eggs/Ramiel";
 import MagiPanel from "./MagiPanel";
+
+// Loaded the first time the Commander is summoned.
+const GendoDialog = lazy(() => import("./eggs/GendoDialog"));
 
 // Order the three computers cast their votes in.
 const VOTE_ORDER = ["balthasar", "casper", "melchior"];
@@ -17,6 +20,7 @@ function Letters({ text, active, offset = 0 }) {
     <span
       key={i}
       aria-hidden="true"
+      data-reveal
       className={`inline-block transition-[translate,color] duration-200 hover:-translate-y-2 hover:text-nerv ${
         active ? "animate-letter-in" : "opacity-0"
       }`}
@@ -51,9 +55,8 @@ function iruelOverride(id, stage) {
 // Fades a block in after the boot screen, with a stagger.
 function enter(active, delay) {
   return {
-    className: `transition-[opacity,translate] duration-700 ${
-      active ? "opacity-100" : "translate-y-4 opacity-0"
-    }`,
+    "data-reveal": true,
+    className: `transition-[opacity,translate] duration-700 ${active ? "opacity-100" : "translate-y-4 opacity-0"}`,
     style: { transitionDelay: `${delay}ms` },
   };
 }
@@ -62,11 +65,18 @@ export default function Hero({ active }) {
   const [votes, setVotes] = useState(0);
   const [run, setRun] = useState(0);
   const [gendo, setGendo] = useState(false);
+  const [gendoLoaded, setGendoLoaded] = useState(false); // stays mounted once opened, for its LCL flood
+  const email = emailAddress();
   const [iruel, setIruel] = useState(null);
   const [iruelRun, setIruelRun] = useState(0);
   const reruns = useRef(0);
 
-  useEffect(() => onUi("gendo", () => setGendo(true)), []);
+  const summon = () => {
+    setGendoLoaded(true);
+    setGendo(true);
+  };
+
+  useEffect(() => onUi("gendo", summon), []);
 
   useEffect(() => {
     if (!iruelRun) return;
@@ -87,11 +97,14 @@ export default function Hero({ active }) {
   useEffect(() => {
     if (!active) return;
     const timers = VOTE_ORDER.map((_, i) =>
-      setTimeout(() => {
-        setVotes(i + 1);
-        if (i === VOTE_ORDER.length - 1) sfx.granted();
-        else sfx.approve();
-      }, 900 + 700 * i),
+      setTimeout(
+        () => {
+          setVotes(i + 1);
+          if (i === VOTE_ORDER.length - 1) sfx.granted();
+          else sfx.approve();
+        },
+        900 + 700 * i,
+      ),
     );
     return () => timers.forEach(clearTimeout);
   }, [run, active]);
@@ -113,15 +126,23 @@ export default function Hero({ active }) {
   const alert = iruel && iruel.stage < 6;
 
   return (
-    <section id="magi" tabIndex={-1} className="hex-grid relative isolate scroll-mt-16 overflow-hidden outline-none border-b-2 border-magi/40">
+    <section
+      id="magi"
+      tabIndex={-1}
+      className="hex-grid relative isolate scroll-mt-16 overflow-hidden border-b-2 border-magi/40 outline-none"
+    >
       {/* Tokyo-3 sky: a sunset tint at dusk, a moon at night (see src/lib/tod.js) */}
       <div className="tod-sky pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
       <div
         className="tod-moon pointer-events-none absolute top-4 right-4 -z-10 size-10 rounded-full bg-paper/75 shadow-[0_0_60px_18px_rgb(169_200_255/0.25)] sm:top-8 sm:right-[8%] sm:size-16"
         aria-hidden="true"
       />
-      <Ramiel className="right-2 bottom-2 sm:right-[4%] sm:bottom-4" />
-      <GendoDialog open={gendo} onClose={() => setGendo(false)} />
+      <Ramiel className="right-2 bottom-2 sm:right-[4%] sm:bottom-4 print:hidden" />
+      {gendoLoaded && (
+        <Suspense fallback={null}>
+          <GendoDialog open={gendo} onClose={() => setGendo(false)} />
+        </Suspense>
+      )}
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)] gap-10 px-4 py-10 sm:gap-12 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:py-24">
         {/* Left: personnel file */}
         <div>
@@ -141,7 +162,7 @@ export default function Hero({ active }) {
           <div {...enter(active, 500)}>
             <button
               type="button"
-              onClick={() => setGendo(true)}
+              onClick={summon}
               className="mt-6 inline-block bg-nerv px-2 py-0.5 text-left text-sm tracking-widest text-void transition hover:shadow-[3px_3px_0_var(--color-paper)]"
             >
               {profile.designation}
@@ -151,11 +172,8 @@ export default function Hero({ active }) {
           </div>
 
           <div {...enter(active, 700)}>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <a
-                href="#files"
-                className="sheen bg-magi px-5 py-2.5 font-bold text-void shadow-[4px_4px_0_var(--color-nerv)] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_var(--color-nerv)] active:translate-x-1 active:translate-y-1 active:shadow-none"
-              >
+            <div className="mt-8 flex flex-wrap gap-4 print:hidden">
+              <a href="#files" className="sheen btn-primary px-5 py-2.5">
                 ACCESS ▸ CASE FILES
               </a>
               <a
@@ -169,7 +187,7 @@ export default function Hero({ active }) {
 
           {/* Quick links to socials, so phones don't have to scroll to the comms section */}
           <div {...enter(active, 850)}>
-            <div className="mt-6 flex flex-wrap items-center gap-2 text-xs">
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-xs print:hidden">
               <span className="w-full tracking-[0.3em] text-magi/80 sm:mr-1 sm:w-auto">QUICK COMMS //</span>
               {socials.map((s) => (
                 <a
@@ -183,6 +201,15 @@ export default function Hero({ active }) {
                   {s.name}
                 </a>
               ))}
+              {email && (
+                <a
+                  href={`mailto:${email}`}
+                  data-goatcounter-click="hero-email"
+                  className="wipe-fill flex min-h-11 items-center border border-magi/60 px-3 tracking-widest transition-colors duration-300 hover:text-void focus-visible:text-void"
+                >
+                  EMAIL
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -196,47 +223,50 @@ export default function Hero({ active }) {
           </div>
 
           {/* Phones: a swipeable row of panels. Larger screens: the classic MAGI triangle. */}
-          <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 py-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-0 sm:overflow-visible sm:p-0">
-          <MagiPanel
-            name="BALTHASAR"
-            number={2}
-            data={profile.magi.balthasar}
-            approved={approved("balthasar")}
-            override={override("balthasar")}
-            className="w-[80%] shrink-0 snap-start sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.75rem)]"
-          />
+          <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 [scrollbar-width:none] gap-3 overflow-x-auto px-4 py-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-0 sm:overflow-visible sm:p-0">
+            <MagiPanel
+              name="BALTHASAR"
+              number={2}
+              data={profile.magi.balthasar}
+              approved={approved("balthasar")}
+              override={override("balthasar")}
+              className="w-[80%] shrink-0 snap-start sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.75rem)]"
+            />
 
-          {/* Connector: Balthasar ─ MAGI ─ Casper/Melchior */}
-          <div className="hidden sm:col-span-2 sm:block" aria-hidden="true">
-            <div className="mx-auto h-5 w-0.5 bg-magi/60" />
-            <div
-              className={`mx-auto w-fit border-2 px-3 font-title text-lg font-black tracking-[0.4em] glow transition-colors duration-500 ${
-                alert ? "border-nerv text-nerv" : done ? "border-sync text-sync" : "border-magi/60 text-magi"
-              }`}
-            >
-              MAGI
+            {/* Connector: Balthasar ─ MAGI ─ Casper/Melchior */}
+            <div className="hidden sm:col-span-2 sm:block" aria-hidden="true">
+              <div className="mx-auto h-5 w-0.5 bg-magi/60" />
+              <div
+                className={`mx-auto w-fit border-2 px-3 font-title text-lg font-black tracking-[0.4em] transition-colors duration-500 glow ${
+                  alert ? "border-nerv text-nerv" : done ? "border-sync text-sync" : "border-magi/60 text-magi"
+                }`}
+              >
+                MAGI
+              </div>
+              <div className="mx-auto h-5 w-[calc(50%+0.75rem)] border-x-2 border-t-2 border-magi/60" />
             </div>
-            <div className="mx-auto h-5 w-[calc(50%+0.75rem)] border-x-2 border-t-2 border-magi/60" />
-          </div>
 
-          <MagiPanel
-            name="CASPER"
-            number={3}
-            data={profile.magi.casper}
-            approved={approved("casper")}
-            override={override("casper")}
-            className="w-[80%] shrink-0 snap-start sm:w-auto"
-          />
-          <MagiPanel
-            name="MELCHIOR"
-            number={1}
-            data={profile.magi.melchior}
-            approved={approved("melchior")}
-            override={override("melchior")}
-            className="w-[80%] shrink-0 snap-start sm:w-auto"
-          />
+            <MagiPanel
+              name="CASPER"
+              number={3}
+              data={profile.magi.casper}
+              approved={approved("casper")}
+              override={override("casper")}
+              className="w-[80%] shrink-0 snap-start sm:w-auto"
+            />
+            <MagiPanel
+              name="MELCHIOR"
+              number={1}
+              data={profile.magi.melchior}
+              approved={approved("melchior")}
+              override={override("melchior")}
+              className="w-[80%] shrink-0 snap-start sm:w-auto"
+            />
           </div>
-          <p className="mt-2 text-center text-[10px] tracking-[0.3em] text-magi/80 sm:hidden" aria-hidden="true">
+          <p
+            className="mt-2 text-center text-[10px] tracking-[0.3em] text-magi/80 sm:hidden print:hidden"
+            aria-hidden="true"
+          >
             ◂ SWIPE ▸
           </p>
 
@@ -267,7 +297,7 @@ export default function Hero({ active }) {
                 type="button"
                 onClick={rerun}
                 disabled={Boolean(iruel)}
-                className="group/re shrink-0 flex items-center gap-1 text-xs text-magi/80 transition-colors hover:text-magi"
+                className="group/re flex shrink-0 items-center gap-1 text-xs text-magi/80 transition-colors hover:text-magi print:hidden"
               >
                 <span className="inline-block transition-transform duration-500 group-hover/re:-rotate-180">↻</span>
                 RE-RUN

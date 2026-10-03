@@ -8,6 +8,10 @@ export const site = {
   // Put the PDF in public/ and set this to its path, e.g. "/gabriel-goluch-resume.pdf".
   resume: "",
 
+  // GitHub username for the MAGI activity log (recent public commits, in the
+  // mission briefing).
+  github: "GGoluch1",
+
   // GoatCounter analytics (free, no cookies). Dashboard: https://ggoluch1.goatcounter.com
   // Only counts on the live site, never on localhost.
   goatcounter: "ggoluch1",

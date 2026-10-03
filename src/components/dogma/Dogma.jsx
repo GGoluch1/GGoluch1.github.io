@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useHold } from "../../hooks/useHold";
+import { useInView } from "../../hooks/useInView";
 import { useLatest } from "../../hooks/useLatest";
+import { useSeele } from "../../lib/eggs";
 import { sfx, startHum, useSound } from "../../lib/sound";
 import Lilith, { LANCE_DIR } from "./Lilith";
 import ThirdImpact from "./ThirdImpact";
@@ -37,19 +39,6 @@ function useScrollProgress(ref, name, onChange) {
       window.removeEventListener("resize", onScroll);
     };
   }, [ref, name, changeRef]);
-}
-
-// Like useInView, but also turns back off when the element leaves the screen
-// (the hum stops when you scroll away; the eyes re-open when you come back).
-function useVisible(threshold) {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold });
-    io.observe(ref.current);
-    return () => io.disconnect();
-  }, [threshold]);
-  return [ref, visible];
 }
 
 const STAGES = [
@@ -99,13 +88,19 @@ function Descent() {
           />
         ))}
 
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 text-center" style={{ opacity: "calc(1 - var(--p) * 12)" }}>
+        <div
+          className="absolute top-6 left-1/2 -translate-x-1/2 text-center"
+          style={{ opacity: "calc(1 - var(--p) * 12)" }}
+        >
           <p className="animate-blink text-xs tracking-[0.4em] text-magi">▼ DESCENDING ▼</p>
         </div>
 
         {/* Depth readout */}
-        <div className="absolute top-1/2 left-[19%] -translate-y-1/2" style={{ opacity: "calc(1 - clamp(0, (var(--p) - 0.7) * 5, 1))" }}>
-          <p className="text-[10px] tracking-[0.4em] text-magi/70">DEPTH // 深度</p>
+        <div
+          className="absolute top-1/2 left-[19%] -translate-y-1/2"
+          style={{ opacity: "calc(1 - clamp(0, (var(--p) - 0.7) * 5, 1))" }}
+        >
+          <p className="text-[10px] tracking-[0.4em] text-magi/80">DEPTH // 深度</p>
           <p ref={depthRef} className="font-title text-4xl font-black text-paper tabular-nums sm:text-6xl">
             -0700 m
           </p>
@@ -139,16 +134,27 @@ function Descent() {
 
 const PULL_SECONDS = 2.8;
 
+const ENDINGS = [
+  ["tv", "第26話 // TV"],
+  ["eoe", "劇場版 // THE END OF EVANGELION"],
+];
+
 function Chamber() {
   const ref = useRef(null);
   const lanceRef = useRef(null);
   const cracksRef = useRef(null);
   const barRef = useRef(null);
   const pull = useRef(0);
-  const [inViewRef, inView] = useVisible(0.35);
+  // Not latched: the hum stops when you scroll away, and the eyes re-open when you come back.
+  const [inViewRef, inView] = useInView(0.35, { once: false });
   const [warning, setWarning] = useState(false);
-  const [impact, setImpact] = useState(false);
+  const [impact, setImpact] = useState(null); // the ending playing, fixed when the Lance comes out
   const sound = useSound();
+  const seele = useSeele();
+  // The TV ending comes first. After it, the next pull defaults to End of
+  // Evangelion, and the visitor can pick either.
+  const [choice, setChoice] = useState(null);
+  const ending = choice ?? (seele.ended && !seele.eoe ? "eoe" : "tv");
 
   useScrollProgress(ref, "--q");
 
@@ -157,13 +163,13 @@ function Chamber() {
     return startHum();
   }, [inView, sound, impact]);
 
-  const draw = (p) => {
+  const draw = useCallback((p) => {
     const d = p * 280;
     const shake = p > 0.05 && p < 1 ? (Math.random() - 0.5) * 4 * p : 0;
     lanceRef.current?.setAttribute("transform", `translate(${LANCE_DIR.x * d + shake} ${LANCE_DIR.y * d + shake})`);
     cracksRef.current?.setAttribute("opacity", String(clamp((p - 0.45) * 2.2)));
     if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-  };
+  }, []);
 
   const hold = useHold((dt, holding) => {
     if (impact) return false;
@@ -173,7 +179,7 @@ function Chamber() {
     if (Math.floor(pull.current * 10) > Math.floor(before * 10)) sfx.tick();
     setWarning(pull.current > 0.55);
     if (pull.current >= 1) {
-      setImpact(true);
+      setImpact(ending);
       return false;
     }
     return pull.current > 0;
@@ -183,8 +189,9 @@ function Chamber() {
     pull.current = 0;
     draw(0);
     setWarning(false);
-    setImpact(false);
-  }, []);
+    setImpact(null);
+    setChoice(null);
+  }, [draw]);
 
   return (
     <div ref={ref} className="relative h-[170vh] [--q:0]">
@@ -198,8 +205,8 @@ function Chamber() {
 
         <div className="absolute top-16 left-4 text-xs tracking-[0.3em] sm:left-6">
           <p className="text-magi">TERMINAL DOGMA // ターミナルドグマ</p>
-          <p className="mt-1 text-magi/60">HEAVEN&apos;S DOOR // OPEN</p>
-          <p className="mt-1 text-magi/60 sm:hidden">第2使徒 // LILITH</p>
+          <p className="mt-1 text-magi/80">HEAVEN&apos;S DOOR // OPEN</p>
+          <p className="mt-1 text-magi/80 sm:hidden">第2使徒 // LILITH</p>
         </div>
 
         <div className="absolute inset-x-0 bottom-4 flex flex-col items-center px-4 text-center sm:bottom-8">
@@ -213,9 +220,30 @@ function Chamber() {
             <span ref={barRef} className="absolute inset-0 origin-left scale-x-0 bg-nerv/40" aria-hidden="true" />
             <span className="relative">{warning ? "ANTI-A.T. FIELD DETECTED" : "HOLD TO PULL THE LANCE"}</span>
           </button>
+          {seele.ended && (
+            <div
+              className="mt-3 flex flex-wrap justify-center gap-2 text-[10px] tracking-[0.2em]"
+              role="group"
+              aria-label="Ending"
+            >
+              {ENDINGS.map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setChoice(id)}
+                  aria-pressed={ending === id}
+                  className={`border px-2 py-1 transition-colors ${
+                    ending === id ? "border-nerv bg-nerv/20 text-paper" : "border-nerv/50 text-nerv hover:border-nerv"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-      {impact && <ThirdImpact onReturn={goHome} />}
+      {impact && <ThirdImpact ending={impact} onReturn={goHome} />}
     </div>
   );
 }
@@ -223,7 +251,7 @@ function Chamber() {
 export default function Dogma() {
   return (
     <section id="dogma" tabIndex={-1} aria-label="Terminal Dogma" className="outline-none">
-      <div className="hazard h-4" aria-hidden="true" />
+      <div className="h-4 hazard" aria-hidden="true" />
       <Descent />
       <Chamber />
     </section>

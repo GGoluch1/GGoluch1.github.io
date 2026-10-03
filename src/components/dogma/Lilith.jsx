@@ -28,11 +28,13 @@ function strand(sign) {
 const STRANDS = [strand(1), strand(-1)];
 
 // Small, uneven legs hanging from Lilith's lower body: [x, length, lean].
+// prettier-ignore
 const LEGS = [
   [356, 58, -6], [368, 96, -3], [380, 72, 2], [392, 124, -2],
   [406, 108, 3], [418, 80, 5], [430, 100, 4], [442, 62, 8],
 ];
 
+// prettier-ignore
 const EYES = [
   [382, 236], [378, 256], [383, 276],
   [418, 236], [422, 256], [417, 276],
@@ -54,7 +56,12 @@ function Arm({ flip }) {
 
 const Lilith = forwardRef(function Lilith({ eyesOpen, cracksRef }, lanceRef) {
   return (
-    <svg viewBox="0 0 800 1000" className="h-full w-full" role="img" aria-label="Lilith crucified on a red cross above a lake of LCL, the Lance of Longinus in her chest">
+    <svg
+      viewBox="0 0 800 1000"
+      className="h-full w-full"
+      role="img"
+      aria-label="Lilith crucified on a red cross above a lake of LCL, the Lance of Longinus in her chest"
+    >
       <defs>
         <radialGradient id="dg-glow" cx="50%" cy="36%" r="62%">
           <stop offset="0" stopColor="#ee1c33" stopOpacity="0.5" />
@@ -85,7 +92,12 @@ const Lilith = forwardRef(function Lilith({ eyesOpen, cracksRef }, lanceRef) {
         </clipPath>
         <filter id="dg-ripple" x="0" y="0" width="100%" height="100%">
           <feTurbulence type="fractalNoise" baseFrequency="0.01 0.07" numOctaves="2" seed="4">
-            <animate attributeName="baseFrequency" dur="9s" values="0.01 0.07;0.014 0.09;0.01 0.07" repeatCount="indefinite" />
+            <animate
+              attributeName="baseFrequency"
+              dur="9s"
+              values="0.01 0.07;0.014 0.09;0.01 0.07"
+              repeatCount="indefinite"
+            />
           </feTurbulence>
           <feDisplacementMap in="SourceGraphic" scale="16" />
         </filter>
@@ -117,17 +129,34 @@ const Lilith = forwardRef(function Lilith({ eyesOpen, cracksRef }, lanceRef) {
           d="M338 262C326 300 334 344 350 384C362 420 362 462 354 500L446 500C438 462 438 420 450 384C466 344 474 300 462 262C430 286 370 286 338 262Z"
           fill="url(#dg-skin)"
         />
-        <path d="M400 292v104M360 330q40 14 80 0M362 352q38 14 76 0M364 374q36 12 72 0" stroke="#c6bab0" strokeWidth="2" fill="none" />
-        <path d="M350 496C340 520 344 548 360 560C372 572 392 566 400 572C410 566 430 572 442 560C458 546 460 520 450 496Z" fill="url(#dg-skin)" />
+        <path
+          d="M400 292v104M360 330q40 14 80 0M362 352q38 14 76 0M364 374q36 12 72 0"
+          stroke="#c6bab0"
+          strokeWidth="2"
+          fill="none"
+        />
+        <path
+          d="M350 496C340 520 344 548 360 560C372 572 392 566 400 572C410 566 430 572 442 560C458 546 460 520 450 496Z"
+          fill="url(#dg-skin)"
+        />
         {LEGS.map(([x, len, lean], i) => (
-          <path key={i} d={`M${x - 6} 550 L${x + 6} 550 L${x + lean} ${550 + len} Z`} fill={i % 2 ? "#ded5cd" : "#ece5de"} />
+          <path
+            key={i}
+            d={`M${x - 6} 550 L${x + 6} 550 L${x + lean} ${550 + len} Z`}
+            fill={i % 2 ? "#ded5cd" : "#ece5de"}
+          />
         ))}
         <ellipse cx="400" cy="553" rx="50" ry="9" fill="#7a0a12" opacity="0.7" />
         <ellipse cx={TIP.x} cy={TIP.y} rx="11" ry="7" fill="#5a0710" />
 
         {/* Head and the seven-eyed mask */}
         <ellipse cx="400" cy="258" rx="38" ry="42" fill="#efe8e1" />
-        <path d="M360 230Q400 206 440 230Q450 268 400 312Q350 268 360 230Z" fill="var(--color-lilith)" stroke="#2e1250" strokeWidth="2" />
+        <path
+          d="M360 230Q400 206 440 230Q450 268 400 312Q350 268 360 230Z"
+          fill="var(--color-lilith)"
+          stroke="#2e1250"
+          strokeWidth="2"
+        />
         <path d="M366 230Q400 214 434 230" stroke="#8b5cc9" strokeWidth="2" fill="none" opacity="0.6" />
         {EYES.map(([x, y], i) => (
           <g key={i}>
@@ -140,24 +169,50 @@ const Lilith = forwardRef(function Lilith({ eyesOpen, cracksRef }, lanceRef) {
                 ry="3"
                 fill="#ff2a3a"
                 filter="url(#dg-eye-glow)"
-                className="animate-eye-open [transform-box:fill-box] [transform-origin:center]"
+                className="[transform-origin:center] animate-eye-open [transform-box:fill-box]"
                 style={{ animationDelay: `${0.4 + i * 0.35}s` }}
               />
             )}
           </g>
         ))}
         <g ref={cracksRef} opacity="0">
-          <path d="M398 212L392 236L402 252L394 274L401 302M392 236L370 244M402 252L428 246L438 236M394 274L368 266" stroke="#12051f" strokeWidth="2.4" fill="none" />
-          <path d="M398 212L392 236L402 252L394 274L401 302M402 252L428 246" stroke="#ff8a1f" strokeWidth="0.8" fill="none" />
+          <path
+            d="M398 212L392 236L402 252L394 274L401 302M392 236L370 244M402 252L428 246L438 236M394 274L368 266"
+            stroke="#12051f"
+            strokeWidth="2.4"
+            fill="none"
+          />
+          <path
+            d="M398 212L392 236L402 252L394 274L401 302M402 252L428 246"
+            stroke="#ff8a1f"
+            strokeWidth="0.8"
+            fill="none"
+          />
         </g>
 
         {/* The Lance of Longinus */}
         <g ref={lanceRef}>
           {STRANDS.map((pts, i) => (
-            <polyline key={`s${i}`} points={pts} fill="none" stroke="#2a0006" strokeWidth="9" strokeLinejoin="round" strokeLinecap="round" />
+            <polyline
+              key={`s${i}`}
+              points={pts}
+              fill="none"
+              stroke="#2a0006"
+              strokeWidth="9"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
           ))}
           {STRANDS.map((pts, i) => (
-            <polyline key={i} points={pts} fill="none" stroke={i ? "#a50c1f" : "#e01a33"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
+            <polyline
+              key={i}
+              points={pts}
+              fill="none"
+              stroke={i ? "#a50c1f" : "#e01a33"}
+              strokeWidth="5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
           ))}
         </g>
       </g>
@@ -188,11 +243,19 @@ const Lilith = forwardRef(function Lilith({ eyesOpen, cracksRef }, lanceRef) {
       <g className="max-sm:hidden" fill="#ff8a1f" stroke="#ff8a1f" fontFamily="Share Tech Mono, monospace">
         <path d="M344 214v-16h16M456 214v-16h-16M344 306v16h16M456 306v16h-16" fill="none" strokeWidth="2" />
         <path d="M456 206L560 120H740" fill="none" strokeWidth="1" />
-        <text x="566" y="110" fontSize="20" stroke="none">第2使徒 // LILITH</text>
-        <text x="566" y="142" fontSize="13" stroke="none" opacity="0.7">ADAM? // NEGATIVE</text>
+        <text x="566" y="110" fontSize="20" stroke="none">
+          第2使徒 // LILITH
+        </text>
+        <text x="566" y="142" fontSize="13" stroke="none" opacity="0.7">
+          ADAM? // NEGATIVE
+        </text>
         <path d="M607 614L650 668H780" fill="none" strokeWidth="1" />
-        <text x="780" y="660" fontSize="16" stroke="none" textAnchor="end">ロンギヌスの槍 // LANCE OF LONGINUS</text>
-        <text x="40" y="900" fontSize="16" stroke="none" fill="#2a0b00">LCL // 生命のスープ</text>
+        <text x="780" y="660" fontSize="16" stroke="none" textAnchor="end">
+          ロンギヌスの槍 // LANCE OF LONGINUS
+        </text>
+        <text x="40" y="900" fontSize="16" stroke="none" fill="#2a0b00">
+          LCL // 生命のスープ
+        </text>
       </g>
     </svg>
   );

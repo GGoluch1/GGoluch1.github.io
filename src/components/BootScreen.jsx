@@ -32,7 +32,10 @@ const TIMING = {
 const HEX = Array.from({ length: 24 }, (_, i) => {
   const addr = (0x7f00 + i * 16).toString(16).toUpperCase();
   const bytes = Array.from({ length: 6 }, () =>
-    Math.floor(Math.random() * 0xffff).toString(16).padStart(4, "0").toUpperCase(),
+    Math.floor(Math.random() * 0xffff)
+      .toString(16)
+      .padStart(4, "0")
+      .toUpperCase(),
   ).join(" ");
   return `${addr}: ${bytes}`;
 });
@@ -121,8 +124,9 @@ export default function BootScreen({ fast = false, onDone }) {
     <div
       role="status"
       aria-label="MAGI system booting. Press any key to skip."
+      data-boot
       onClick={skip}
-      className={`hex-grid fixed inset-0 z-[60] flex cursor-pointer flex-col bg-void ${
+      className={`hex-grid fixed inset-0 z-[60] flex cursor-pointer flex-col bg-void print:hidden ${
         phase === "exit" ? "animate-crt-off" : ""
       }`}
     >
@@ -131,7 +135,7 @@ export default function BootScreen({ fast = false, onDone }) {
         <span>MAGI SYSTEM // BOOT</span>
         <span className="hidden text-magi/80 sm:inline">人格移植OS</span>
       </div>
-      <div className="hazard h-1.5" aria-hidden="true" />
+      <div className="h-1.5 hazard" aria-hidden="true" />
 
       <div className="mx-auto grid w-full max-w-6xl flex-1 gap-4 overflow-hidden p-4 md:grid-cols-[1.3fr_1fr]">
         {/* Boot log */}
@@ -168,12 +172,12 @@ export default function BootScreen({ fast = false, onDone }) {
                 return (
                   <div
                     key={core.name}
-                    className={`clip-panel p-px transition-colors duration-300 ${core.pos} ${
+                    className={`p-px transition-colors duration-300 clip-panel ${core.pos} ${
                       on ? "bg-sync" : "bg-magi/50"
                     }`}
                   >
                     <div
-                      className={`clip-panel px-2 py-2 text-center text-xs transition-colors duration-300 ${
+                      className={`px-2 py-2 text-center text-xs transition-colors duration-300 clip-panel ${
                         on ? "bg-[#0b1a06] text-sync" : "bg-panel text-magi/80"
                       }`}
                     >
@@ -198,7 +202,11 @@ export default function BootScreen({ fast = false, onDone }) {
                 }}
               >
                 {WAVES.map((w) => (
-                  <g key={w.period} className="animate-wave" style={{ "--p": `-${w.period}px`, animationDuration: w.speed }}>
+                  <g
+                    key={w.period}
+                    className="animate-wave"
+                    style={{ "--p": `-${w.period}px`, animationDuration: w.speed }}
+                  >
                     <path d={w.d} fill="none" stroke={w.color} strokeWidth="1.2" opacity="0.85" />
                   </g>
                 ))}
@@ -238,7 +246,7 @@ export default function BootScreen({ fast = false, onDone }) {
               type="button"
               onClick={skip}
               autoFocus
-              className="wipe-fill group border-2 border-magi px-4 py-1.5 text-sm tracking-[0.3em] transition-colors hover:text-void focus-visible:text-void"
+              className="group wipe-fill border-2 border-magi px-4 py-1.5 text-sm tracking-[0.3em] transition-colors hover:text-void focus-visible:text-void"
             >
               SKIP <span className="inline-block transition-transform group-hover:translate-x-1">▸▸</span>
             </button>

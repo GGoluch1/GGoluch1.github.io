@@ -20,9 +20,12 @@ export function AsukaStamp({ onDone }) {
 
   return (
     <Overlay>
-      <div className="pointer-events-none fixed inset-0 z-[65] grid place-items-center overflow-hidden bg-nerv/15" aria-live="assertive">
+      <div
+        className="pointer-events-none fixed inset-0 z-[65] grid place-items-center overflow-hidden bg-nerv/15"
+        aria-live="assertive"
+      >
         <div className="animate-pop text-center">
-          <p className="animate-shake font-title text-6xl font-black text-nerv [-webkit-text-stroke:2px_var(--color-paper)] rotate-[-7deg] sm:text-9xl">
+          <p className="rotate-[-7deg] animate-shake font-title text-6xl font-black text-nerv [-webkit-text-stroke:2px_var(--color-paper)] sm:text-9xl">
             あんたバカぁ？！
           </p>
           <p className="mt-6 inline-block rotate-[-3deg] bg-nerv px-3 py-1 text-sm tracking-[0.3em] text-void">
@@ -44,7 +47,10 @@ export function KaworuSong({ onDone }) {
 
   return (
     <Overlay>
-      <div className="pointer-events-none fixed inset-0 z-[65] grid animate-fade-in place-items-center bg-black/60 p-6" aria-live="assertive">
+      <div
+        className="pointer-events-none fixed inset-0 z-[65] grid animate-fade-in place-items-center bg-black/60 p-6"
+        aria-live="assertive"
+      >
         {NOTES.map((n, i) => (
           <span
             key={i}

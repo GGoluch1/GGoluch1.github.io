@@ -1,0 +1,11 @@
+/* Loaded only when JavaScript is off (see the <noscript> in index.html).
+   The page is then the prerendered HTML, frozen before any animation:
+   hide the boot screen and show everything that would have animated in. */
+[data-boot] {
+  display: none !important;
+}
+[data-reveal] {
+  opacity: 1 !important;
+  translate: none !important;
+  clip-path: none !important;
+}

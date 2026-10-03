@@ -14,11 +14,9 @@ export default function MagiPanel({ name, number, data, approved, override, clas
 
   return (
     <div
-      className={`group clip-panel p-0.5 transition duration-300 hover:-translate-y-1 hover:brightness-125 ${tone} ${className}`}
+      className={`group p-0.5 transition duration-300 clip-panel hover:-translate-y-1 hover:brightness-125 ${tone} ${className}`}
     >
-      <div
-        className={`sheen clip-panel h-full p-4 transition-colors duration-500 ${face}`}
-      >
+      <div className={`sheen h-full p-4 transition-colors duration-500 clip-panel ${face}`}>
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="font-title text-lg font-black tracking-wide">
             {name}·{number}

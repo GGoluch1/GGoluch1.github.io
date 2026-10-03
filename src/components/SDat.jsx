@@ -70,7 +70,7 @@ export default function SDat() {
     <div className={`relative border-2 bg-panel ${playing ? "z-[63] border-magi" : "border-magi/60"}`}>
       <div className="flex justify-between border-b border-magi/40 px-3 py-1 text-xs tracking-widest">
         <span>S-DAT // {playing ? "再生中" : "停止"}</span>
-        <span className={playing ? "text-sync" : "text-magi/70"}>
+        <span className={playing ? "text-sync" : "text-magi/80"}>
           {forwarding ? "▶▶ FF" : playing ? "▶ PLAY" : "■ STOP"}
         </span>
       </div>

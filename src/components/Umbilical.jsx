@@ -41,12 +41,15 @@ function Countdown({ deadline }) {
 
   return (
     <Overlay>
-      <div className="pointer-events-none fixed top-16 right-4 z-[61] border-2 border-nerv bg-black/90 px-3 py-2 text-right font-mono" role="timer">
+      <div
+        className="pointer-events-none fixed top-16 right-4 z-[61] border-2 border-nerv bg-black/90 px-3 py-2 text-right font-mono"
+        role="timer"
+      >
         <p className="text-[10px] tracking-[0.3em] text-nerv">内部電源 // INTERNAL POWER</p>
         <p ref={ref} className="font-title text-3xl font-black text-nerv tabular-nums">
           05:00:00
         </p>
-        <p className="text-[10px] tracking-[0.2em] text-nerv/70">活動限界まで // UNTIL ACTIVITY LIMIT</p>
+        <p className="text-[10px] tracking-[0.2em] text-nerv">活動限界まで // UNTIL ACTIVITY LIMIT</p>
       </div>
     </Overlay>
   );
@@ -60,7 +63,11 @@ function ActivityLimit() {
 
   return (
     <Overlay>
-      <div role="alertdialog" aria-label="Activity limit reached" className="fixed inset-0 z-[67] grid place-items-center bg-black/40 p-6 font-mono">
+      <div
+        role="alertdialog"
+        aria-label="Activity limit reached"
+        className="fixed inset-0 z-[67] grid place-items-center bg-black/40 p-6 font-mono"
+      >
         <div className="text-center">
           <p className="font-title text-6xl font-black text-nerv sm:text-8xl">活動限界</p>
           <p className="mt-2 text-sm tracking-[0.3em] text-nerv">ACTIVITY LIMIT REACHED</p>
@@ -90,7 +97,7 @@ export default function Umbilical() {
         onClick={connected ? unplug : plugIn}
         aria-pressed={!connected}
         title={connected ? "Umbilical cable: connected. Click to unplug." : "Reconnect umbilical cable"}
-        className={`relative flex items-center gap-1.5 border px-2 py-1 transition before:absolute before:-inset-y-2.5 before:-inset-x-1 active:scale-95 ${
+        className={`relative flex items-center gap-1.5 border px-2 py-1 transition before:absolute before:-inset-x-1 before:-inset-y-2.5 active:scale-95 ${
           connected ? "border-magi/50 hover:border-magi hover:bg-magi/10" : "border-nerv text-nerv hover:bg-nerv/10"
         }`}
       >
