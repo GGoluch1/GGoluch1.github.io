@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { profile } from "../data/profile";
 import { useRemote } from "../hooks/useRemote";
-import { BOOTED_KEY } from "../lib/boot";
+import { BOOTED_KEY, SECTION_KEY } from "../lib/boot";
 import { relative } from "../lib/format";
 import { fetchRepo } from "../lib/remote";
 import { session } from "../lib/storage";
@@ -17,6 +17,10 @@ const STATUS = {
 };
 
 const YEAR = new Date().getFullYear();
+
+// Back to the case files: the home page opens there once (see SECTION_KEY).
+// Without JavaScript the #files anchor does the same.
+const backToFiles = () => session.set(SECTION_KEY, "files");
 
 const plain = (text) => text.replace(/\[\[(.+?)\]\]/g, "$1");
 
@@ -67,7 +71,11 @@ export default function Report({ project }) {
             <span className="font-title text-2xl font-black tracking-tight text-nerv">NERV</span>
             <span className="hidden text-xs tracking-[0.3em] text-magi/80 sm:inline">MAGI SYSTEM</span>
           </a>
-          <a href="/#files" className="text-sm tracking-widest transition-colors hover:text-paper">
+          <a
+            href="/#files"
+            onClick={backToFiles}
+            className="text-sm tracking-widest transition-colors hover:text-paper"
+          >
             ◂ CASE FILES
           </a>
         </div>
@@ -131,7 +139,11 @@ export default function Report({ project }) {
 
       <footer className="border-t-2 border-magi/40">
         <div className="mx-auto max-w-4xl px-4 py-10 text-center">
-          <a href="/#files" className="text-sm tracking-widest transition-colors hover:text-paper print:hidden">
+          <a
+            href="/#files"
+            onClick={backToFiles}
+            className="text-sm tracking-widest transition-colors hover:text-paper print:hidden"
+          >
             ◂ BACK TO THE CASE FILES
           </a>
           <p className="mt-6 text-xs text-magi/80">

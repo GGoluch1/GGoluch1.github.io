@@ -66,7 +66,7 @@ const MAN = {
   seele:
     "seele [reset]\n  Scenario progress: seven seals, the bonuses, and the endings seen.\n  'seele reset --yes' forgets everything.",
   hint: "hint\n  SEELE's guidance toward the next unbroken seal.",
-  sound: "sound <on | off>\n  Interface sounds. Off by default.",
+  sound: "sound <on | off>\n  Interface sounds and music. On by default.",
   date: "date\n  Tokyo-3 time, and today's Eva calendar event if there is one.",
   clear: "clear\n  Clears the screen.",
   exit: "exit\n  Closes the terminal. So does the ` key.",

@@ -23,7 +23,7 @@ My personal site: a portfolio and link hub styled after the MAGI supercomputer f
 - **Mission briefing** with what I'm working on now (`src/data/briefing.js`), the latest public GitHub commits as a MAGI activity log, and a 次回予告 "next episode" preview.
 - **Eva calendar**: premieres, Second Impact and birthdays change the emergency bar. Preview a date with `?date=MM-DD`.
 - **A.T. Field** ripples when you click anywhere that isn't a link or button.
-- **Soft UI sounds**, synthesized with the Web Audio API and off by default.
+- **Soft UI sounds**, synthesized with the Web Audio API. On by default; the nav switch turns them off, and that choice is remembered.
 - **Accessible motion**: everything still works with reduced motion turned on.
 - **Print**: printing the page gives a plain black-on-white dossier.
 - **No JavaScript**: the prerendered page still reads properly (`public/noscript.css`).
@@ -102,4 +102,4 @@ chrome --headless=new --hide-scrollbars --force-device-scale-factor=0.3333333 --
 
 ---
 
-Fan-made tribute. *Neon Genesis Evangelion* belongs to its respective owners.
+Fan-made tribute. *Neon Genesis Evangelion* belongs to its respective owners. The S-DAT only plays public-domain music; the one exception on the site is a hidden ending's short piano arrangement of *A Cruel Angel's Thesis* (`src/lib/thesis.js`), synthesized in the browser like everything else.

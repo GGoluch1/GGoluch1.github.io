@@ -3,7 +3,7 @@ import { useHold } from "../../hooks/useHold";
 import { useInView } from "../../hooks/useInView";
 import { useLatest } from "../../hooks/useLatest";
 import { useSeele } from "../../lib/eggs";
-import { sfx, startHum, useSound } from "../../lib/sound";
+import { setSound, sfx, startHum, useSound } from "../../lib/sound";
 import Lilith, { LANCE_DIR } from "./Lilith";
 import ThirdImpact from "./ThirdImpact";
 
@@ -220,6 +220,16 @@ function Chamber() {
             <span ref={barRef} className="absolute inset-0 origin-left scale-x-0 bg-nerv/40" aria-hidden="true" />
             <span className="relative">{warning ? "ANTI-A.T. FIELD DETECTED" : "HOLD TO PULL THE LANCE"}</span>
           </button>
+          {/* The ending has music; sound is on by default, but it may have been turned off. */}
+          {!sound && (
+            <button
+              type="button"
+              onClick={() => setSound(true)}
+              className="mt-3 text-[10px] tracking-[0.3em] text-paper/70 transition-colors hover:text-paper"
+            >
+              ♪ BEST WITH SOUND // <span className="text-nerv underline underline-offset-4">TURN IT ON</span>
+            </button>
+          )}
           {seele.ended && (
             <div
               className="mt-3 flex flex-wrap justify-center gap-2 text-[10px] tracking-[0.2em]"

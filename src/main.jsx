@@ -11,6 +11,11 @@ document.querySelectorAll("link[data-async-font]").forEach((link) => {
   link.media = "all";
 });
 
+// The site always opens at the top: the browser shouldn't put back an old
+// scroll position on reload or back/forward (see App.jsx). Set before
+// anything renders, so it applies to this page load too.
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
 initAnalytics();
 startTimeOfDay();
 initTheme();

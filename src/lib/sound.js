@@ -1,13 +1,14 @@
 // Minimal UI sounds, synthesized with the Web Audio API (no audio files).
-// Everything is soft sine/triangle blips at low volume. Off by default;
-// the visitor's choice is remembered in localStorage.
+// Everything is soft sine/triangle blips at low volume. On by default (the
+// browser still waits for a first click or key press); turning it off is
+// remembered in localStorage.
 
 import { local } from "./storage";
 import { createStore, useStore } from "./store";
 
 const KEY = "magi-sound";
 
-const enabled = createStore(local.get(KEY) === "on", false); // off when prerendering
+const enabled = createStore(local.get(KEY) !== "off", false); // off when prerendering
 let ctx = null;
 let unlocked = false; // browsers only allow audio after a user gesture
 let lastHover = 0;
@@ -88,7 +89,7 @@ function noiseBuffer(ac) {
 }
 
 // A short burst of filtered white noise (claps, the positron beam).
-function burst(when, dur, vol, freq, type = "bandpass") {
+function burst(when, dur, vol, freq, type = "bandpass", out = null) {
   const ac = live();
   if (!ac) return;
 
@@ -103,7 +104,10 @@ function burst(when, dur, vol, freq, type = "bandpass") {
   gain.gain.setValueAtTime(0.0001, t);
   gain.gain.exponentialRampToValueAtTime(vol, t + 0.004);
   gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  src.connect(filter).connect(gain).connect(ac.destination);
+  src
+    .connect(filter)
+    .connect(gain)
+    .connect(out ?? ac.destination);
   src.start(t, Math.random() * 0.5);
   src.stop(t + dur + 0.02);
 }
@@ -192,13 +196,28 @@ export const sfx = {
       t += beats * beat;
     }
   },
-  applause() {
-    for (let i = 0; i < 160; i++) {
-      burst(
-        Math.random() * 3.4,
-        0.05 + Math.random() * 0.05,
-        0.015 + Math.random() * 0.02,
-        1100 + Math.random() * 1900,
+  // One hand clap: a few bursts of noise a few milliseconds apart.
+  clap(vol = 0.06) {
+    burst(0, 0.03, vol, 1300);
+    burst(0.008, 0.035, vol * 0.8, 1800);
+    burst(0.017, 0.07, vol * 0.6, 2300);
+  },
+  // Glass under strain: tiny ticks climbing in pitch.
+  creak() {
+    for (let i = 0; i < 12; i++) tone(2600 + i * 180, 0.025, 0.006, "triangle", i * 0.07);
+    slide(1700, 2900, 0.85, 0.006, "sine");
+  },
+  // Glass breaking: a crash of bright noise, then shards ringing as they fall.
+  shatter() {
+    burst(0, 0.5, 0.09, 3800, "highpass");
+    burst(0, 0.25, 0.05, 900);
+    for (let i = 0; i < 26; i++) {
+      tone(
+        2400 + Math.random() * 4200,
+        0.12 + Math.random() * 0.3,
+        0.004 + Math.random() * 0.006,
+        "sine",
+        Math.random() * 0.9,
       );
     }
   },
@@ -209,6 +228,33 @@ export const sfx = {
     burst(0, 1.3, 0.08, 420, "lowpass");
   },
 };
+
+// A crowd applauding for `seconds`: claps scattered all through it, swelling
+// in and dying away at the end. Returns a function that fades it out early.
+export function startApplause(seconds, perSecond = 22) {
+  const ac = live();
+  if (!ac) return () => {};
+
+  const bus = ac.createGain();
+  const t0 = ac.currentTime;
+  bus.gain.setValueAtTime(0.0001, t0);
+  bus.gain.exponentialRampToValueAtTime(1, t0 + 0.8);
+  bus.gain.setValueAtTime(1, t0 + Math.max(seconds - 2, 1));
+  bus.gain.exponentialRampToValueAtTime(0.0001, t0 + seconds);
+  bus.connect(ac.destination);
+  for (let i = 0; i < seconds * perSecond; i++) {
+    const at = Math.random() * seconds;
+    burst(at, 0.04 + Math.random() * 0.05, 0.01 + Math.random() * 0.016, 1100 + Math.random() * 1900, "bandpass", bus);
+  }
+
+  return () => {
+    const t = ac.currentTime;
+    bus.gain.cancelScheduledValues(t);
+    bus.gain.setValueAtTime(Math.max(bus.gain.value, 0.0001), t);
+    bus.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
+    setTimeout(() => bus.disconnect(), 800);
+  };
+}
 
 // Low drone for Terminal Dogma. Returns a function that fades it out.
 export function startHum() {
@@ -282,6 +328,11 @@ export function setMuted(on) {
 // interface sounds off, since pressing play is a request for sound).
 // Null until the visitor has interacted with the page.
 export const getAudio = () => audio();
+
+// The AudioContext only when interface sounds are on (and not muted by the
+// S-DAT or a dead battery): for sound that should follow the visitor's choice,
+// like the Third Impact music.
+export const soundContext = () => live();
 
 export function setSound(on) {
   local.set(KEY, on ? "on" : "off");

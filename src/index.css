@@ -277,6 +277,56 @@
     opacity: 0;
   }
 }
+/* The congratulations scene (src/components/dogma/Congratulations.jsx). */
+@keyframes shard {
+  to {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--r)) scale(1.7);
+    opacity: 0;
+  }
+}
+@keyframes push-in {
+  to {
+    transform: scale(1.12);
+  }
+}
+@keyframes cut-in {
+  from {
+    transform: scale(1.08);
+  }
+}
+/* Hands meet on the beat (0%), apart in between. At rest they're apart. */
+@keyframes clap-l {
+  0%,
+  100% {
+    translate: 20px 0;
+    rotate: 10deg;
+  }
+  50% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+@keyframes clap-r {
+  0%,
+  100% {
+    translate: -20px 0;
+    rotate: -10deg;
+  }
+  50% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+}
+.clap-l,
+.clap-r {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: clap-l var(--beat, 0.7s) ease-in-out infinite;
+  animation-delay: var(--clap-delay, 0s);
+}
+.clap-r {
+  animation-name: clap-r;
+}
 @keyframes drift {
   from {
     transform: translateX(-40px);

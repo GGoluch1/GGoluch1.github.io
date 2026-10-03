@@ -11,7 +11,7 @@ import ATField from "./components/ATField";
 import Isolation from "./components/Isolation";
 import Links from "./components/Links";
 import Nav from "./components/Nav";
-import { BOOTED_KEY, VISITED_KEY } from "./lib/boot";
+import { BOOTED_KEY, SECTION_KEY, VISITED_KEY } from "./lib/boot";
 import { isUnlocked, useSeele } from "./lib/eggs";
 import { SECTIONS, goTo } from "./lib/navigate";
 import { sfx } from "./lib/sound";
@@ -23,6 +23,10 @@ import { dialogOpen, onUi } from "./lib/ui";
 const Terminal = lazy(() => import("./components/Terminal"));
 const IdCard = lazy(() => import("./components/IdCard"));
 const Dogma = lazy(() => import("./components/dogma/Dogma"));
+
+// Instant, not smooth: <html> has scroll-behavior: smooth, and a smooth scroll
+// can be cut short while the boot screen holds the page still.
+const toTop = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
 // "full" for first-time visitors, "fast" for returning ones,
 // "none" when it already played in this tab. Add ?boot to the URL to force "full".
@@ -37,6 +41,8 @@ function bootMode() {
 
 export default function App() {
   const [mode] = useState(bootMode);
+  // A section asked for by the previous page (an incident report's back link).
+  const [section] = useState(() => session.get(SECTION_KEY));
   const [booted, setBooted] = useState(mode === "none");
   const [panel, setPanel] = useState(null); // "terminal" | "idcard" | null
   const unlocked = isUnlocked(useSeele());
@@ -50,23 +56,23 @@ export default function App() {
   const finishBoot = useCallback(() => {
     session.set(BOOTED_KEY, "1");
     local.set(VISITED_KEY, "1");
+    // The browser may have scrolled behind the boot screen (to a #section it
+    // found in the URL, say), so the site is revealed at the top, on the name.
+    toTop();
     setBooted(true);
   }, []);
 
-  // A boot sequence always lands on the top section. Without this, a leftover
-  // #files / #comms in the URL or the browser's scroll restoration on reload
-  // would leave the page mid-way down when the boot screen clears.
-  // Without a boot (already booted in this tab, e.g. coming back from an
-  // incident report to /#files), a #section in the URL is honored instead.
+  // The site always opens at the top, on the name. A #files / #comms in the
+  // address (an old link, the address bar's autocomplete, a reloaded or
+  // restored tab) is dropped rather than followed. The one exception is an
+  // incident report's back link, which asks for the case files through
+  // sessionStorage, once. Scroll restoration is switched off in main.jsx.
   useLayoutEffect(() => {
-    if (mode === "none") {
-      if (location.hash) goTo(location.hash.slice(1), { instant: true });
-      return;
-    }
-    history.scrollRestoration = "manual";
     if (location.hash) history.replaceState(null, "", location.pathname + location.search);
-    window.scrollTo(0, 0);
-  }, [mode]);
+    session.remove(SECTION_KEY);
+    if (mode === "none" && section && goTo(section, { instant: true })) return;
+    toTop();
+  }, [mode, section]);
 
   // One delegated listener for: soft UI sounds on links/buttons, and smooth
   // in-page navigation for every "#section" link (no back-button history spam).

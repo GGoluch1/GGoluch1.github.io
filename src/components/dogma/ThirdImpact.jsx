@@ -3,33 +3,24 @@ import { useLatest } from "../../hooks/useLatest";
 import { endScenario } from "../../lib/eggs";
 import { sdat } from "../../lib/sdat";
 import { sfx } from "../../lib/sound";
+import { startThesis } from "../../lib/thesis";
 import Lcl from "../Lcl";
 import Overlay from "../Overlay";
+import Congratulations, { SHATTER_AT } from "./Congratulations";
 import RedSea from "./RedSea";
 
 // Pulling the Lance starts Third Impact: LCL floods the screen and the page
 // melts. Then one of two endings:
-//   tv  - everything goes white, the whole cast congratulates you (episode 26),
-//         and the final title card hands over the secret link.
+//   tv  - the end of episode 26: the world shatters and the whole cast
+//         congratulates Shinji to a piano "Cruel Angel's Thesis"
+//         (Congratulations.jsx), then the final title card hands over the
+//         secret link. The music keeps playing under the card.
 //   eoe - the red sea and the beach from The End of Evangelion.
 // It's a native modal <dialog>, so focus moves into it, Escape skips ahead,
 // and the page's keyboard shortcuts stay quiet while it runs.
 
 // Kept encoded so it isn't sitting in the source as a plain URL.
 const SECRET = atob("aHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g/dj1vNnd0RFBWa0txSQ==");
-
-// prettier-ignore
-const CAST = [
-  "MISATO", "ASUKA", "REI", "TOJI", "KENSUKE", "HIKARI", "RITSUKO", "KAJI",
-  "MAYA", "SHIGERU", "MAKOTO", "FUYUTSUKI", "KAWORU", "PEN PEN", "YUI", "GENDO",
-];
-
-// Where each "congratulations" pops up, in % of the screen, around the centre.
-// prettier-ignore
-const SPOTS = [
-  [12, 14], [42, 8], [72, 13], [88, 30], [8, 36], [90, 52], [14, 62], [86, 74],
-  [30, 82], [60, 86], [6, 86], [46, 28], [24, 30], [70, 28], [36, 66], [62, 68],
-];
 
 const CARDS = {
   tv: [
@@ -44,17 +35,19 @@ const CARDS = {
   ],
 };
 
-// Each phase, and how long it lasts before the next one (ms).
+// Each phase, and how long it lasts before the next one (ms). The
+// congratulations scene moves on to the card by itself when it ends.
 const STEPS = {
-  tv: { flood: ["lcl", 1900], lcl: ["white", 2600], white: ["congrats", 900], congrats: ["card", 5600] },
+  tv: { flood: ["lcl", 1900], lcl: ["scene", 2600] },
   eoe: { flood: ["lcl", 1900], lcl: ["sea", 2600], sea: ["card", 11000] },
 };
 
 export default function ThirdImpact({ ending = "tv", onReturn }) {
-  const [phase, setPhase] = useState("flood"); // flood | lcl | white | congrats | sea | card
+  const [phase, setPhase] = useState("flood"); // flood | lcl | scene | sea | card
   const dialogRef = useRef(null);
   const cardRef = useRef(null);
   const returnRef = useLatest(onReturn);
+  const phaseRef = useLatest(phase);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -70,9 +63,16 @@ export default function ThirdImpact({ ending = "tv", onReturn }) {
     };
   }, []);
 
+  // The piano starts when the glass breaks, or right away if the scene was
+  // skipped, and plays on under the card until the visitor returns.
+  const music = ending === "tv" && (phase === "scene" || phase === "card");
+  useEffect(() => {
+    if (!music) return;
+    return startThesis(phaseRef.current === "scene" ? SHATTER_AT : 0.3);
+  }, [music, phaseRef]);
+
   useEffect(() => {
     const next = STEPS[ending][phase];
-    if (phase === "congrats") sfx.applause();
     if (phase === "card") {
       endScenario(ending);
       cardRef.current?.focus();
@@ -113,25 +113,7 @@ export default function ThirdImpact({ ending = "tv", onReturn }) {
           </Lcl>
         )}
 
-        {phase === "white" && <div className="absolute inset-0 animate-[fade-in_0.8s_ease-in_both] bg-white" />}
-
-        {phase === "congrats" && (
-          <div className="absolute inset-0 bg-[linear-gradient(#3f9fe4,#bfe6ff_62%,#f4fbff)]">
-            {CAST.map((name, i) => (
-              <div
-                key={name}
-                className="absolute -translate-x-1/2 animate-pop text-center text-void"
-                style={{ left: `${SPOTS[i][0]}%`, top: `${SPOTS[i][1]}%`, animationDelay: `${0.2 + i * 0.28}s` }}
-              >
-                <p className="font-title text-lg font-black sm:text-2xl">おめでとう</p>
-                <p className="text-[10px] tracking-[0.3em]">— {name}</p>
-              </div>
-            ))}
-            <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 animate-pop text-center font-title text-4xl font-black text-paper [text-shadow:0_2px_0_#1d4f80] sm:text-7xl">
-              CONGRATULATIONS!
-            </p>
-          </div>
-        )}
+        {phase === "scene" && <Congratulations onDone={() => setPhase("card")} />}
 
         {phase === "sea" && <RedSea />}
 
@@ -181,8 +163,12 @@ export default function ThirdImpact({ ending = "tv", onReturn }) {
           <button
             type="button"
             onClick={() => setPhase("card")}
-            className={`absolute right-4 bottom-4 border border-current px-3 py-1 text-xs tracking-[0.3em] ${
-              phase === "sea" ? "text-paper/70 hover:text-paper" : "text-void/70 hover:text-void"
+            className={`absolute right-4 bottom-4 z-10 border border-current px-3 py-1 text-xs tracking-[0.3em] ${
+              phase === "sea"
+                ? "text-paper/70 hover:text-paper"
+                : phase === "scene"
+                  ? "bg-black/40 text-paper/80 hover:text-paper"
+                  : "text-void/70 hover:text-void"
             }`}
           >
             SKIP ▸▸

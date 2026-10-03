@@ -6,40 +6,7 @@
 import { AIR, HALLELUJAH, JESU } from "./scores";
 import { getAudio, setMuted } from "./sound";
 import { createStore, useStore } from "./store";
-
-const SEMITONE = { C: 0, "C#": 1, D: 2, "D#": 3, E: 4, F: 5, "F#": 6, G: 7, "G#": 8, A: 9, "A#": 10, B: 11 };
-
-function freq(name) {
-  const [, note, octave] = name.match(/^([A-G]#?)(\d)$/);
-  const midi = (Number(octave) + 1) * 12 + SEMITONE[note];
-  return 440 * 2 ** ((midi - 69) / 12);
-}
-
-// Each voice is an oscillator with an envelope; the sawtooth voices run
-// through a lowpass filter to soften the raw waveform.
-const VOICES = {
-  cello: { type: "sawtooth", vol: 0.035, attack: 0.03, filter: 1100 },
-  strings: { type: "sawtooth", vol: 0.02, attack: 0.08, filter: 1800 },
-  violin: { type: "sawtooth", vol: 0.024, attack: 0.07, filter: 2400 },
-  choir: { type: "sawtooth", vol: 0.016, attack: 0.05, filter: 1500 },
-  bass: { type: "triangle", vol: 0.06, attack: 0.02 },
-  flute: { type: "triangle", vol: 0.04, attack: 0.02 },
-  inner: { type: "triangle", vol: 0.018, attack: 0.05 },
-  piano: { type: "triangle", vol: 0.045, attack: 0.005, decay: true },
-};
-
-// Builds [time, note, duration, voice] events from a list of notes at a fixed step.
-function line(notes, step, voice, start = 0, hold = 1.1) {
-  return notes.split(" ").map((n, i) => [start + i * step, n, step * hold, voice]);
-}
-
-// Builds events from "beat:note:beats" tokens (see scores.js), `beat` seconds per beat.
-function score(text, beat, voice) {
-  return text.split(" ").map((token) => {
-    const [at, note, beats] = token.split(":");
-    return [at * beat, note, beats * beat, voice];
-  });
-}
+import { line, play, score } from "./synth";
 
 // A piece from several scored parts: { part: voice }.
 function parts(source, beat, voices) {
@@ -148,51 +115,10 @@ function emit(next) {
   player.set(state);
 }
 
-function play(ac, piece) {
-  const out = ac.createGain();
-  out.connect(ac.destination);
-  const t0 = ac.currentTime + 0.05;
-
-  for (const [at, note, dur, voiceName] of piece.events) {
-    const v = VOICES[voiceName];
-    const start = t0 + at;
-    const osc = ac.createOscillator();
-    const gain = ac.createGain();
-    osc.type = v.type;
-    osc.frequency.value = freq(note);
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(v.vol, start + v.attack);
-    if (v.decay) gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-    else {
-      gain.gain.setValueAtTime(v.vol, start + Math.max(dur - 0.08, v.attack));
-      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
-    }
-    let node = osc;
-    if (v.filter) {
-      const filter = ac.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.value = v.filter;
-      osc.connect(filter);
-      node = filter;
-    }
-    node.connect(gain).connect(out);
-    osc.start(start);
-    osc.stop(start + dur + 0.05);
-  }
-  return out;
-}
-
 function silence() {
   clearTimeout(timer);
-  if (!bus) return;
-  const ac = getAudio();
-  const old = bus;
+  bus?.stop();
   bus = null;
-  if (ac) {
-    old.gain.setValueAtTime(old.gain.value, ac.currentTime);
-    old.gain.linearRampToValueAtTime(0, ac.currentTime + 0.15);
-  }
-  setTimeout(() => old.disconnect(), 250);
 }
 
 function start(index, special = false) {
@@ -200,7 +126,7 @@ function start(index, special = false) {
   if (!ac) return false;
   silence();
   const piece = (special ? TRACK_27 : TAPE[index]).build();
-  bus = play(ac, piece);
+  bus = play(ac, piece.events);
   // After track 27, the tape goes back to the beginning.
   timer = setTimeout(() => start(special ? 0 : (index + 1) % TAPE.length), piece.length * 1000);
   emit({ playing: true, index: special ? 0 : index, special });

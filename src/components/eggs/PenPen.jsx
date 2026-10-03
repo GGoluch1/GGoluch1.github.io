@@ -5,9 +5,10 @@ import { sfx } from "../../lib/sound";
 // Bonus egg. Pen Pen lives behind the hazard tape above the footer and peeks
 // out every so often. Click him and he waddles off.
 
-function Penguin() {
+// Pen Pen himself, in a 48 x 56 box. Also drawn in the congratulations scene.
+export function PenguinShapes() {
   return (
-    <svg viewBox="0 0 48 56" className="h-14 w-12" aria-hidden="true">
+    <>
       <path d="M17 5q4-6 7-1 3-5 7 1-3 1-7 3-4-2-7-3z" fill="var(--color-nerv)" />
       <ellipse cx="24" cy="35" rx="16" ry="19" fill="#1d2238" />
       <ellipse cx="9" cy="35" rx="4" ry="10" fill="#1d2238" transform="rotate(18 9 35)" />
@@ -22,6 +23,14 @@ function Penguin() {
       <path d="M20 21q4 5 8 0z" fill="var(--color-magi)" />
       <ellipse cx="18" cy="54" rx="5" ry="2" fill="var(--color-magi)" />
       <ellipse cx="30" cy="54" rx="5" ry="2" fill="var(--color-magi)" />
+    </>
+  );
+}
+
+function Penguin() {
+  return (
+    <svg viewBox="0 0 48 56" className="h-14 w-12" aria-hidden="true">
+      <PenguinShapes />
     </svg>
   );
 }

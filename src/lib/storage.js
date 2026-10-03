@@ -19,6 +19,13 @@ function wrap(name) {
         // blocked: nothing is remembered
       }
     },
+    remove(key) {
+      try {
+        window[name].removeItem(key);
+      } catch {
+        // blocked: there was nothing to forget
+      }
+    },
   };
 }
 
