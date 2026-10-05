@@ -4,6 +4,7 @@ import { find } from "../lib/eggs";
 import { fetchAngelCount } from "../lib/remote";
 import { setSound, useSound } from "../lib/sound";
 import { timeOfDay } from "../lib/tod";
+import { openUi } from "../lib/ui";
 import Umbilical from "./Umbilical";
 
 // Seal 5's "Anta baka?!" only loads when someone knocks five times.
@@ -98,21 +99,34 @@ export default function Nav() {
         tucked ? "max-md:-translate-y-full" : ""
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:gap-3">
-        <a
-          href="#magi"
-          onClick={knock}
-          className="group relative flex items-baseline gap-2 before:absolute before:inset-x-0 before:-inset-y-2.5"
-        >
-          <span className="font-title text-2xl font-black tracking-tight text-nerv transition group-hover:animate-glitch">
-            NERV
-          </span>
-          <span className="hidden text-xs tracking-[0.3em] text-magi/80 transition-colors group-hover:text-magi sm:inline">
-            MAGI SYSTEM
-          </span>
-        </a>
+      {/* From sm up, a three-column grid keeps the nav dead centre: the side
+          columns are always equal, whatever is in them. Each side is kept
+          narrower than half of what's left (status on the left, the visitor
+          count and controls on the right, showing more as the screen widens).
+          Phones keep a simple row, without the terminal button (it would
+          overflow a 360px screen; the footer has one). */}
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-2 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-3">
+        <div className="flex items-center gap-3 sm:justify-self-start">
+          <a
+            href="#magi"
+            onClick={knock}
+            className="group relative flex items-baseline gap-2 before:absolute before:inset-x-0 before:-inset-y-2.5"
+          >
+            <span className="font-title text-2xl font-black tracking-tight text-nerv transition group-hover:animate-glitch">
+              NERV
+            </span>
+            <span className="hidden text-xs tracking-[0.3em] text-magi/80 transition-colors group-hover:text-magi md:inline">
+              MAGI SYSTEM
+            </span>
+          </a>
+          <div className="hidden items-center gap-2 text-xs lg:flex" aria-hidden="true">
+            <span className="size-2 animate-blink bg-sync" />
+            <span className="text-sync">ONLINE</span>
+            <Clock />
+          </div>
+        </div>
 
-        <nav className="flex text-xs sm:gap-1 sm:text-sm">
+        <nav className="flex text-xs sm:gap-1 sm:justify-self-center sm:text-sm">
           {links.map((link, i) => {
             const isActive = active === link.id;
             return (
@@ -133,18 +147,25 @@ export default function Nav() {
           })}
         </nav>
 
-        <div className="flex items-center gap-2 text-xs sm:gap-3">
-          <div className="hidden items-center gap-2 md:flex" aria-hidden="true">
-            <span className="size-2 animate-blink bg-sync" />
-            <span className="text-sync">ONLINE</span>
-            <Clock />
-            {angels && (
-              <span className="hidden text-magi/80 lg:inline" title="Visitors so far">
-                · {angels} ANGELS REPELLED
-              </span>
-            )}
-          </div>
+        <div className="flex items-center gap-2 text-xs sm:gap-3 sm:justify-self-end">
+          {angels && (
+            <span className="hidden text-magi/80 xl:inline" title="Visitors so far">
+              {angels} ANGELS REPELLED
+            </span>
+          )}
           <Umbilical />
+          <button
+            type="button"
+            onClick={() => openUi("terminal")}
+            aria-label="MAGI terminal"
+            aria-keyshortcuts="`"
+            title="MAGI terminal (press `)"
+            className="relative hidden items-center border border-magi/50 px-2 py-1 font-bold transition before:absolute before:-inset-x-1 before:-inset-y-2.5 hover:border-magi hover:bg-magi/10 active:scale-95 sm:flex"
+          >
+            <span aria-hidden="true">
+              &gt;<span className="animate-blink">_</span>
+            </span>
+          </button>
           <button
             type="button"
             onClick={() => setSound(!soundOn)}
@@ -163,7 +184,7 @@ export default function Nav() {
                 />
               ))}
             </span>
-            <span className="sr-only sm:not-sr-only">SND </span>
+            <span className="sr-only md:not-sr-only">SND </span>
             {soundOn ? "ON" : "OFF"}
           </button>
         </div>
