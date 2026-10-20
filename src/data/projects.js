@@ -18,6 +18,35 @@
 
 export const projects = [
   {
+    file: "002",
+    title: "Promptionary",
+    blurb:
+      "A SwampHacks XII party game: describe a secret image without its banned words, [[Gemini draws what it heard]], and everyone races to guess it.",
+    tags: ["Node.js", "Socket.io", "TypeScript", "Gemini API", "Next.js"],
+    status: "CLOSED",
+    progress: 100,
+    year: "2026",
+    image: "/projects/promptionary.webp",
+    repo: "https://github.com/samanglo814/Promptionary",
+    github: "samanglo814/Promptionary",
+    slug: "promptionary",
+    report: {
+      problem:
+        "AI tools usually hide the gap between what you say and what the model understands. Promptionary makes that gap the game. One player describes a secret image out loud without saying its banned words, Gemini draws what it heard, and the other players race to guess the image. It had to run live on a shared screen with up to eight phones joining by QR code, be built over one hackathon weekend, and survive free-tier AI quotas.",
+      approach: [
+        "Built in a team of two with Samantha Anglo, who did the frontend, the product design and the deployment. Gabriel built the game server, designed the game, and wrote the core Gemini pipeline.",
+        "The server, written in TypeScript with Express and Socket.io, owns all game state: a state machine runs every room, phase, timer and score, and the host screen and phones only render what it broadcasts. Deadlines are sent as timestamps, so every screen counts down to the same moment.",
+        "Reconnect handling gives a describer who refreshes their phone a grace period to rejoin before their turn is skipped.",
+        "Gemini transcribes the description and draws it. A single structured-JSON call then scores the drawing against the target, rates every guess and writes a roast caption, which uses one call of the free-tier quota instead of several.",
+        "Designed the two-round format and the points system: accuracy, clarity, speed and banned-word penalties, with guess values that scale with room size and a 1.5x second round.",
+        "Expanded the target bank from 20 to 100 scenes and gave the cards and the AI's drawings a shared art style, so the two can be compared directly.",
+        "An automated five-bot game checks every payload against the data contract, and runs in CI alongside the unit tests on every pull request.",
+      ],
+      result:
+        "A playable 2–8 player game with no accounts or installs, submitted to five SwampHacks XII tracks, including Best Use of Gemini API and Best Entertainment & Creative Technology Hack.",
+    },
+  },
+  {
     file: "001",
     title: "Personal Site",
     blurb: "This website. A MAGI-themed archive built on [[React, Vite, and Tailwind]].",

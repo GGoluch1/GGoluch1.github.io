@@ -15,6 +15,14 @@ export const record = [
     status: "ACTIVE",
   },
   {
+    period: "OCT 2026",
+    org: "SwampHacks XII",
+    role: "Hackathon developer: Promptionary",
+    detail:
+      "Built a multiplayer AI party game with Samantha Anglo: the realtime game server, the game design and the Gemini pipeline.",
+    status: "COMPLETE",
+  },
+  {
     period: "2026",
     org: "gabrielgoluch.me",
     role: "Designer and developer",

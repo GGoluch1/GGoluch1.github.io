@@ -5,8 +5,11 @@
 //          what's coming. Set to null to hide it.
 
 export const briefing = {
-  updated: "2026-10-03",
-  tasks: [{ name: "Develop the website", status: "ACTIVE" }],
+  updated: "2026-10-20",
+  tasks: [
+    { name: "Upgrade resume", status: "ACTIVE" },
+    { name: "Develop the website", status: "STANDBY" },
+  ],
   next: {
     title: "NEW CASE FILES",
     teaser:
