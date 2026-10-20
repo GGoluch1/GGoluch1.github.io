@@ -232,7 +232,7 @@ export default function Terminal({ onClose }) {
         const p = projects.find((x) => arg.endsWith(x.file) || arg.includes(x.title.toLowerCase()));
         if (p) {
           return print(
-            `CASE No.${p.file} // ${p.title} // ${p.year}\n${plain(p.blurb)}\nTAGS: ${p.tags.join(", ")}\nSTATUS: ${p.status}${p.repo ? `\nSOURCE: ${p.repo}` : ""}${p.live ? `\nDEPLOY: ${p.live}` : ""}${p.report ? `\nREPORT: 'open ${p.file}'` : ""}`,
+            `CASE No.${p.file} // ${p.title} // ${p.year}\n${plain(p.blurb)}\nTAGS: ${p.tags.join(", ")}\nSTATUS: ${p.status}${p.repo ? `\nSOURCE: ${p.repo}` : ""}${p.live ? `\nDEPLOY: ${p.live}` : ""}${p.devpost ? `\nDEVPOST: ${p.devpost}` : ""}${p.report ? `\nREPORT: 'open ${p.file}'` : ""}`,
           );
         }
         if (arg.includes("lilith") || arg.includes("lance") || arg.includes("lcl")) {

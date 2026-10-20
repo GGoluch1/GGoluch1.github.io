@@ -43,7 +43,7 @@ function FileLink({ href, external = true, children }) {
 }
 
 export default function CaseFileCard({ project }) {
-  const { file, title, blurb, tags, status, progress, year, image, repo, live, github, report } = project;
+  const { file, title, blurb, tags, status, progress, year, image, repo, live, devpost, github, report } = project;
   const [ref, inView] = useInView(0.4);
   const stats = useRemote(() => fetchRepo(github), github);
   const pct = Math.min(Math.max(progress, 0), 100);
@@ -149,6 +149,7 @@ export default function CaseFileCard({ project }) {
             )}
             {repo && <FileLink href={repo}>SOURCE</FileLink>}
             {live && <FileLink href={live}>DEPLOY</FileLink>}
+            {devpost && <FileLink href={devpost}>DEVPOST</FileLink>}
           </div>
         </div>
       </div>

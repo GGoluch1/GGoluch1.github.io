@@ -11,6 +11,7 @@
 // image     - optional, put files in public/projects/ and reference as "/projects/name.png"
 // repo      - optional source link
 // live      - optional deployed link
+// devpost   - optional, hackathon projects only: the Devpost submission page
 // github    - optional "owner/repo"; shows live stats (last push, stars, language)
 // slug      - optional; with a report, the project gets its own page at /files/<slug>/
 // report    - optional incident report (a longer write-up), all plain text:
@@ -28,6 +29,7 @@ export const projects = [
     year: "2026",
     image: "/projects/promptionary.webp",
     repo: "https://github.com/samanglo814/Promptionary",
+    devpost: "https://devpost.com/software/promptionary",
     github: "samanglo814/Promptionary",
     slug: "promptionary",
     report: {

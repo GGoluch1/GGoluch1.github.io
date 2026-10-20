@@ -49,7 +49,7 @@ function OutLink({ href, children }) {
 }
 
 export default function Report({ project }) {
-  const { file, title, blurb, tags, status, year, image, repo, live, github, report } = project;
+  const { file, title, blurb, tags, status, year, image, repo, live, devpost, github, report } = project;
   const stats = useRemote(() => fetchRepo(github), github);
 
   // Coming back to the case files from here skips the boot sequence.
@@ -128,10 +128,11 @@ export default function Report({ project }) {
           <Section jp="結果" en="RESULT">
             <p>{report.result}</p>
           </Section>
-          {(repo || live) && (
+          {(repo || live || devpost) && (
             <div className="flex flex-wrap gap-3 border-t border-magi/30 pt-8">
               {repo && <OutLink href={repo}>SOURCE</OutLink>}
               {live && <OutLink href={live}>DEPLOY</OutLink>}
+              {devpost && <OutLink href={devpost}>DEVPOST</OutLink>}
             </div>
           )}
         </div>
